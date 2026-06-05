@@ -1,0 +1,1 @@
+export { SettingProvider ,SettingContext } from "./settingContext.tsx";
