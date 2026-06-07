@@ -18,7 +18,7 @@ export default function useProject() {
         name: "dev board",
         summary: "summary1",
         domain: "domain1",
-        completion: 0,
+        completion: 1,
         features: ["feature1", "feature2"]
     }] as projectType[] })
     return { state, dispatch }

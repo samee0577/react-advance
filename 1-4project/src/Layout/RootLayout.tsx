@@ -26,6 +26,7 @@ export default function RootLayout() {
                 <br />
                 <Link to="/projectDetail">Project1</Link>
             </nav>
+            <hr style={{ margin: 10}} />
             <Outlet />
         </>
     )
