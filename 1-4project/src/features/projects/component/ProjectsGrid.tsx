@@ -19,14 +19,14 @@ export default function ProjectsList() {
     const projects = state.projects
 
     return (
-        <div>
+        <div >
             <h1>Projects</h1>
-            <Link to="/newProject">
-                <button>
+            <Link to="/newProject"  >
+                <button style={{padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10}}>
                     Add Ew Project
                 </button>
             </Link>
-            <div>
+            <div style={{ display:"grid", gridTemplateColumns: "1fr 1fr 1fr 1fr",gap: "10px"}}>
                 {projects.map((project) => (
                     <ProjectCard project={project} />
                 ))}

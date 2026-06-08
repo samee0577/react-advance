@@ -19,7 +19,7 @@ export default function useProject() {
         summary: "summary1",
         domain: "domain1",
         completion: 1,
-        features: ["feature1", "feature2"]
+        features: ["feature1", "feature2", "feature3"]
     }] as projectType[] })
     return { state, dispatch }
 }

@@ -6,21 +6,23 @@ type progress = {
     done: number
 }
 
-export const MyProgress = ({total, done}:progress) => {
+export const MyProgress = ({ total, done }: progress) => {
     // Calculate percentage
     const percentage = total > 0 ? Math.min((done / total) * 100, 100) : 0;
 
     return (
-        <div style={{ width: 50, height: 50 }}>
+        <div style={{ width: 50, height: 50,margin:"10px" }}>
             <CircularProgressbar
-                value={percentage}
-                text={`${done}/${total}`}
+                value={percentage} 
+                counterClockwise 
+                strokeWidth={14}
+                text={`${percentage.toFixed(0)}%`}
                 styles={buildStyles({
-                    // Customizing colors and look
-                    pathColor: '#3b82f6',     /* Blue progress bar */
-                    textColor: '#1f2937',     /* Dark text label */
-                    trailColor: '#e6e6e6',    /* Grey background track */
-                    strokeLinecap: 'round',   /* Rounded edges */
+                    pathColor: '#34ddff',
+                    trailColor: '#e5e5e5f9',
+                    strokeLinecap: 'round',
+                    rotation: 0,
+                    textSize: '34px',
                 })}
             />
         </div>

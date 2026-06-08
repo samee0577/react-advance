@@ -5,10 +5,12 @@ import { MyProgress } from "./ProgressBar";
 export default function ProjectCard({ project }: { project: projectType }) {
     return (
         <Link to={`/projectDetail/${project.name}`} style={{ textDecoration: "none", color: "black" }}>
-            <div>
-                <h2>name: {project.name}</h2>
+            <div style={{ padding: "10px", margin: "5px", border: "1px solid black", borderRadius: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h2>name: {project.name}</h2>
+                    <MyProgress total={project.features.length} done={project.completion} />
+                </div>
                 <p>summary: {project.summary}</p>
-                <MyProgress total={project.features.length} done={project.completion}/>
             </div>
         </Link>
     )
