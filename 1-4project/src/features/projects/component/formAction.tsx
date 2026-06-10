@@ -24,6 +24,7 @@ export default function FormAction() {
         <>
             <form action={formAction} >
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px", marginBottom: "20px" }}>
+                    
                     {/* inputs */}
                     <div style={{ paddingRight: "10px", display: "flex", flexDirection: "column", gap: "10px", borderRight: '1px solid #ccc' }}>
                         <label style={{ fontSize: "18px", marginTop: "10px" }}>Project Details</label>
@@ -31,13 +32,14 @@ export default function FormAction() {
                         <input style={inputStyle} name="domain" placeholder="domain" />
                         <textarea style={{ ...inputStyle, height: "100px" }} name="summary" placeholder="summary" />
                     </div>
+
                     {/* features */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", height: "fit-content" }}>
+                    <div  style={{ display: "flex", flexDirection: "column", gap: "10px", height: "fit-content" }}>
                         <label style={{ fontSize: "18px" }}>Features</label>
                         {featureArray.map((feature, index) => (
-                            <div style={{ display: "flex", gap: "5px" }}>
+                            <div key={crypto.randomUUID()} style={{ display: "flex", gap: "5px" }}>
                                 <h3>{index + 1 + "]"}</h3>
-                                <input key={index} style={{ ...inputStyle, width: "100%" }} name="features" placeholder="features" />
+                                <input style={{ ...inputStyle, width: "100%" }} name="features" placeholder="features" />
                             </div>
                         ))}
                         <button style={{ marginTop: "10px", width: "100%", padding: "8px", fontSize: "18px", border: "1px solid black", borderRadius: 10 }} type="button" onClick={handleAddFeature}> Add More Features </button>

@@ -15,6 +15,7 @@ export function useAddProject() {
         const cleanedFeatures = featArray.filter(feat => feat.trim() !== '')
 
         const project = {
+            id: crypto.randomUUID(),
             name: formData.get('name') as string,
             summary: formData.get('summary') as string,
             domain: formData.get('domain') as string,

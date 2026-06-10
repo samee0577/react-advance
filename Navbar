@@ -1,0 +1,15 @@
+import React from "react";
+
+    function Navbar({}) {
+      return (<nav>
+                <span>Total Projects: {state.projects.length}</span>
+                <br />
+                <Link to="/">Dashboard</Link>
+                <br />
+                <Link to="/newProject">New Project</Link>
+                <br />
+                <Link to="/projectDetail">Project1</Link>
+            </nav>);
+    }
+  
+  

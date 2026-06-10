@@ -28,7 +28,7 @@ export default function ProjectsList() {
             </Link>
             <div style={{ display:"grid", gridTemplateColumns: "1fr 1fr 1fr 1fr",gap: "10px"}}>
                 {projects.map((project) => (
-                    <ProjectCard project={project} />
+                    <ProjectCard  key={project.id} project={project} />
                 ))}
             </div>
         </div>

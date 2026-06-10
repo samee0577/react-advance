@@ -4,6 +4,7 @@ import RootLayout from "./Layout/RootLayout"
 import Dashboard from "./pages/Dashboard"
 import {NewProject} from "./pages/NewProject"
 import { ProjectProvider } from "./features/projects"
+import ProjectDetail from "./pages/ProjectDetails"
 
 const router= createBrowserRouter([
   {
@@ -19,8 +20,8 @@ const router= createBrowserRouter([
         element:<NewProject />
       },
       {
-        path:'/projectDetail',
-        element:<h1>Project Detail temp h1</h1>
+        path:'/projectDetail/:projectId',
+        element:<ProjectDetail />
       }
     ]
   }

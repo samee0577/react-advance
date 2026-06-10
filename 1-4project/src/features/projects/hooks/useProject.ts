@@ -15,6 +15,7 @@ function reducerFunction(state: {projects:projectType[]}, action: action) {
 
 export default function useProject() {
     const [state, dispatch] = useReducer(reducerFunction, { projects: [{
+        id: crypto.randomUUID(),
         name: "dev board",
         summary: "summary1",
         domain: "domain1",
