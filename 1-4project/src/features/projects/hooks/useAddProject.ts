@@ -1,6 +1,7 @@
 import { ProjectsContext } from "../context/Context"
 import { toast } from "react-toastify"
 import { use } from "react"
+import type {feature} from "../types/project"
 
 export function useAddProject() {
     
@@ -10,8 +11,9 @@ export function useAddProject() {
 
     function addProjectAction(prevState: any, formData: FormData) {
         
-        const featArray = formData.getAll('features') as Array<string>
-        const cleanedFeatures = featArray.filter(feat => feat.trim() !== '')
+        const features = formData.getAll('features') as Array<string>
+        const featureObjArray = features.map(feature => ({ id: crypto.randomUUID(), title: feature, status: false }))
+           
         const name = formData.get('name') as string
         const Name = name.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
         
@@ -21,7 +23,7 @@ export function useAddProject() {
             summary: formData.get('summary') as string,
             domain: formData.get('domain') as string,
             completion: 0,
-            features: cleanedFeatures
+            features: featureObjArray,
         }
         
         if (project.name.trim() === '' || project.features.length < 1 || project.summary.trim() === '' || project.domain.trim() === '') return toast.error("Please fill all the fields")

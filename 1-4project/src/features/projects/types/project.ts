@@ -2,7 +2,8 @@ import type { Id } from "react-toastify"
 
 export type action = 
     {type: "ADD_PROJECT" , payload: projectType} |
-    {type: "REMOVE_PROJECT", payload?: any}
+    {type: "REMOVE_PROJECT", payload?: any}|
+    {type: "TOGGLE_FEATURE", payload: Id}
 
 export interface projectType {
     id: Id,
@@ -10,5 +11,11 @@ export interface projectType {
     summary: string,
     domain: string,
     completion: number,
-    features: string[]
+    features: feature[]
+}
+
+export type feature={
+    id: Id,
+    title: string
+    status: boolean
 }

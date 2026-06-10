@@ -23,7 +23,7 @@ export default function ProjectDetail() {
                         <p><h2>Domain:</h2>{ThisProject.domain}</p>
                         <p><h2>Completion:</h2>{ThisProject.completion}%</p>
                         <h2>Features:</h2>
-                        {ThisProject.features.map(feature => <li>{feature}</li>)}
+                        {ThisProject.features.map((features) => <button>{features.title}</button> )}
                     </>
                 )
             }
