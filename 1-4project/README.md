@@ -71,3 +71,13 @@ export default defineConfig([
   },
 ])
 ```
+
+next task : 
+1.change the feature from string to object array
+ each obj includes the done : bool and the task it self  :string
+ chnage the ui to be a toggle button
+
+2.make the comletion field have actual percentage OR make a new percentage field  
+
+3.create use hook for it to be able to toggle it status 
+ useReducer and... we need to brqaian strom this 

@@ -6,7 +6,7 @@ export default function RootLayout() {
     return (
         <>
             <NavBar />
-            <hr style={{ margin: 10 }} />
+            <hr style={{ marginTop: 15, margin: 5 }} />
             <Outlet />
         </>
     )

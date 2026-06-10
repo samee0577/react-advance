@@ -2,7 +2,6 @@ import { ProjectsContext } from "../context/Context"
 import { toast } from "react-toastify"
 import { use } from "react"
 
-
 export function useAddProject() {
     
     const context = use(ProjectsContext)
@@ -38,4 +37,3 @@ export function useAddProject() {
 
     return addProjectAction
 }
-
