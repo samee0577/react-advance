@@ -1,7 +1,7 @@
 import { ProjectsContext } from "../context/Context"
 import { use } from "react"
 import { useParams } from "react-router-dom"
-import featureList from "./FeatureList"
+import FeatureList from "./FeatureList"
 
 export default function ProjectDetails() {
     const context = use(ProjectsContext)
@@ -21,7 +21,7 @@ export default function ProjectDetails() {
                         <p><h2>Summary:</h2>{ThisProject.summary}</p>
                         <p><h2>Domain:</h2>{ThisProject.domain}</p>
                         <p><h2>Completion:</h2>{ThisProject.completion}%</p>
-                        {featureList(ThisProject)}
+                        {FeatureList(ThisProject)}
                     </>
                 ) :
                     <h2>

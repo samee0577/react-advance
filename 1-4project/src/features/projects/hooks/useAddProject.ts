@@ -1,7 +1,6 @@
 import { ProjectsContext } from "../context/Context"
 import { toast } from "react-toastify"
 import { use } from "react"
-import type {feature} from "../types/project"
 
 export function useAddProject() {
     

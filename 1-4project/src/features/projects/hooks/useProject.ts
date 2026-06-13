@@ -12,15 +12,22 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
             return {
                 ...state,
                 projects: state.projects.map((project) => {
-                    if (project.id === action.payload) {
+                    if (project.id === action.payload.projectId) {
                         return {
-                            //fix this later
                             ...project,
-                            completion: project.completion === 0 ? 1 : 0,
+                            features: project.features.map((feature) => {
+                                if (feature.id === action.payload.featureId) {
+                                    return {
+                                        ...feature,
+                                        status: !feature.status
+                                    };
+                                }
+                                return feature;
+                            })
                         };
                     }
                     return project;
-                }),
+                })
             }
         default:
             return state

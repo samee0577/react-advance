@@ -1,19 +1,32 @@
 import type { projectType } from "../types/project";
+import { use } from "react"
+import { ProjectsContext } from "../context/Context";
+import { toast, ToastContainer} from "react-toastify";
+import "../../../index.css"
+
+export default function FeatureList(ThisProject: projectType) {
+
+    const context = use(ProjectsContext)
+    if (!context) throw new Error("useProject must be used within a ProjectProvider")
+    const { dispatch } = context
 
 
-function handleToggle() {
-    return () => {
-        
+    function handleToggle(featureId: string) {
+        try {
+            dispatch({ type: "TOGGLE_FEATURE", payload: { projectId: ThisProject.id, featureId: featureId } })
+        } catch (error) {
+            toast.error("Error toggling feature")
+        }
     }
-}
 
-export default function featureList(ThisProject: projectType) {
     return (
         <>
             <h2>Features:</h2>
             <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
-                {ThisProject?.features.map((features) => <button className="features" key={features.id} onClick={handleToggle} >{features.title}</button>)}
+                {ThisProject?.features.map((features) => <button className="features" key={features.id} style={{ backgroundColor: features.status ? "rgba(46, 204, 113, 0.5), rgba(58, 182, 87, 0.75)" : "rgba(128, 128, 128, 0.5)" }}
+                    onClick={() => { handleToggle(features.id) }} >{features.title}</button>)}
             </div>
+            <ToastContainer />
         </>
     )
 }

@@ -13,8 +13,9 @@ const inputStyle = {
 
 
 export default function FormAction() {
+    
     const addProjectAction = useAddProject()
-    const [newProjectState, formAction, isPending] = useActionState(addProjectAction, { name: "", summary: "", domain: "", completion: 0, features: [] })
+    const [newProjectState, formAction, isPending] = useActionState(addProjectAction, null)
     const [featureArray, setArray] = useState<string[]>(["feature1"]);
 
     const handleAddFeature = () => {
