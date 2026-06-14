@@ -1,7 +1,8 @@
 export type action =
     { type: "ADD_PROJECT", payload: projectType } |
     { type: "REMOVE_PROJECT", payload?: any } |
-    { type: "TOGGLE_FEATURE", payload: { projectId: string, featureId: string } }
+    { type: "TOGGLE_FEATURE", payload: { projectId: string, featureId: string } } |
+    { type: "UPADTE_completion", payload: { projectId: string } }
 
 export interface projectType {
     id: string,

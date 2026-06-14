@@ -11,6 +11,7 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
         case 'TOGGLE_FEATURE':
             return {
                 ...state,
+
                 projects: state.projects.map((project) => {
                     if (project.id === action.payload.projectId) {
                         return {
@@ -19,11 +20,24 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                                 if (feature.id === action.payload.featureId) {
                                     return {
                                         ...feature,
-                                        status: !feature.status
+                                        status: !feature.status,
                                     };
                                 }
                                 return feature;
                             })
+                        };
+                    }
+                    return project;
+                })
+            };
+        case "UPADTE_completion":
+            return {
+                ...state,
+                projects: state.projects.map((project) => {
+                    if (project.id === action.payload.projectId) {
+                        return {
+                            ...project,
+                            completion: Math.floor((project.features.filter((feature) => feature.status).length / project.features.length) * 100),
                         };
                     }
                     return project;

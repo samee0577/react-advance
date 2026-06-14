@@ -1,6 +1,6 @@
 import ProjectCard from "./projectCard";
 import { use } from "react";
-import { ProjectsContext } from "../context/Context";
+import { ProjectsContext } from "../context/projectContext";
 import { Link } from "react-router-dom";
 
 

@@ -1,6 +1,6 @@
 import type { projectType } from "../types/project";
 import { use } from "react"
-import { ProjectsContext } from "../context/Context";
+import { ProjectsContext } from "../context/projectContext";
 import { toast, ToastContainer} from "react-toastify";
 import "../../../index.css"
 
@@ -13,7 +13,8 @@ export default function FeatureList(ThisProject: projectType) {
 
     function handleToggle(featureId: string) {
         try {
-            dispatch({ type: "TOGGLE_FEATURE", payload: { projectId: ThisProject.id, featureId: featureId } })
+            dispatch({ type: "TOGGLE_FEATURE", payload: { projectId: ThisProject.id, featureId: featureId } });
+            dispatch({ type: "UPADTE_completion", payload: { projectId: ThisProject.id } })
         } catch (error) {
             toast.error("Error toggling feature")
         }

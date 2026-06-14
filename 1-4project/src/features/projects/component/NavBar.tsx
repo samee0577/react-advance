@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { use } from "react"
-import { ProjectsContext } from "../context/Context"
+import { ProjectsContext } from "../context/projectContext"
 import "../../../index.css"
 
 export default function Navbar() {

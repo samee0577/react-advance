@@ -1,21 +1,23 @@
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import type {feature} from "../types/project"; 
+import { use } from 'react';
+import { ProjectsContext } from '../context/projectContext';
 
-export const MyProgress = ( {features}:{features: feature[]} ) => {
-    // Calculate percentage
-    const total = features.length; // Total number of features.length ;
-    console.table(features);
-    const done = features.filter((f) => f.status===true).length;
-    const percentage = total > 0 ? Math.min((done / total) * 100, 100) : 0;
+export const MyProgress = ({ ProjectId }: { ProjectId: string }) => {
+
+    const context = use(ProjectsContext)
+    if (!context) throw new Error("useProject must be used within a ProjectProvider")
+    const { state } = context
+
+    const completion = state.projects.find((project) => project.id === ProjectId)?.completion || 0
 
     return (
-        <div style={{ width: 50, height: 50,margin:"10px" }}>
+        <div style={{ width: 50, height: 50, margin: "10px" }}>
             <CircularProgressbar
-                value={percentage} 
-                counterClockwise 
+                value={completion}
+                counterClockwise
                 strokeWidth={14}
-                text={`${percentage.toFixed(0)}%`}
+                text={`${completion.toFixed(0)}%`}
                 styles={buildStyles({
                     pathColor: '#34ddff',
                     trailColor: '#e5e5e5f9',

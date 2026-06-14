@@ -1,4 +1,4 @@
-import { ProjectsContext } from "../context/Context"
+import { ProjectsContext } from "../context/projectContext"
 import { use } from "react"
 import { useParams } from "react-router-dom"
 import FeatureList from "./FeatureList"

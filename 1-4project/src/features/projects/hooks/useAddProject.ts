@@ -1,4 +1,4 @@
-import { ProjectsContext } from "../context/Context"
+import { ProjectsContext } from "../context/projectContext"
 import { toast } from "react-toastify"
 import { use } from "react"
 
