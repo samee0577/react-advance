@@ -81,3 +81,7 @@ next task :
 
 3.create use hook for it to be able to toggle it status 
  useReducer and... we need to brqaian strom this 
+
+4.multiple input option techstack 
+5.layout divide into 3 parts 
+6.percentage data transfer to ProjectDetails  

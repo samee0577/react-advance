@@ -7,6 +7,7 @@ export interface projectType {
     id: string,
     name: string,
     summary: string,
+    techStack: string[],
     domain: string,
     completion: number,
     features: feature[]

@@ -1,13 +1,12 @@
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import type {feature} from "../types/project"; 
 
-type progress = {
-    total: number,
-    done: number
-}
-
-export const MyProgress = ({ total, done }: progress) => {
+export const MyProgress = ( {features}:{features: feature[]} ) => {
     // Calculate percentage
+    const total = features.length; // Total number of features.length ;
+    console.table(features);
+    const done = features.filter((f) => f.status===true).length;
     const percentage = total > 0 ? Math.min((done / total) * 100, 100) : 0;
 
     return (

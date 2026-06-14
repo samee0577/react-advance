@@ -21,6 +21,7 @@ export function useAddProject() {
             name: Name,
             summary: formData.get('summary') as string,
             domain: formData.get('domain') as string,
+            techStack: formData.getAll('techStack') as Array<string>,
             completion: 0,
             features: featureObjArray,
         }

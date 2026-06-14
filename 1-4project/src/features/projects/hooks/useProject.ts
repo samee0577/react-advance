@@ -41,7 +41,7 @@ export default function useProject() {
             name: "dev board",
             summary: "summary1",
             domain: "domain1",
-            completion: 1,
+            completion: 33,
             features: [
                 { id: crypto.randomUUID(), title: "feature1", status: true },
                 { id: crypto.randomUUID(), title: "feature2", status: false },

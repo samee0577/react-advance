@@ -20,6 +20,7 @@ export default function ProjectDetails() {
                         <h1>{ThisProject.name}</h1>
                         <p><h2>Summary:</h2>{ThisProject.summary}</p>
                         <p><h2>Domain:</h2>{ThisProject.domain}</p>
+                        <p><h2>Tech Stack:</h2>{ThisProject.techStack}</p>
                         <p><h2>Completion:</h2>{ThisProject.completion}%</p>
                         {FeatureList(ThisProject)}
                     </>

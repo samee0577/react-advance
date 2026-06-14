@@ -31,6 +31,7 @@ export default function FormAction() {
                         <label style={{ fontSize: "18px", marginTop: "10px" }}>Project Details</label>
                         <input style={inputStyle} name="name" placeholder="name" />
                         <input style={inputStyle} name="domain" placeholder="domain" />
+                        <input style={inputStyle} name="techStack" placeholder="Tech-stack" />
                         <textarea style={{ ...inputStyle, height: "100px" }} name="summary" placeholder="summary" />
                     </div>
 

@@ -8,7 +8,7 @@ export default function ProjectCard({ project }: { project: projectType }) {
             <div style={{ padding: "10px", margin: "5px", border: "1px solid black", borderRadius: 10 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "4fr 1fr", gap: "10px" }}>
                     <h2>{project.name}</h2>
-                    <MyProgress total={project.features.length} done={project.completion} />
+                    <MyProgress features={project.features} />
                 </div>
                 <p>summary: {project.summary}</p>
             </div>
