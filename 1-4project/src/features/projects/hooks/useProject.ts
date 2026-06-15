@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import type { action, projectType } from '../types/project';
 
 function reducerFunction(state: { projects: projectType[] }, action: action) {
@@ -30,7 +30,7 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     return project;
                 })
             };
-        case "UPADTE_completion":
+        case "UPDATE_COMPLETION":
             return {
                 ...state,
                 projects: state.projects.map((project) => {
@@ -49,19 +49,12 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
 }
 
 export default function useProject() {
-    const [state, dispatch] = useReducer(reducerFunction, {
-        projects: [{
-            id: crypto.randomUUID(),
-            name: "dev board",
-            summary: "summary1",
-            domain: "domain1",
-            completion: 33,
-            features: [
-                { id: crypto.randomUUID(), title: "feature1", status: true },
-                { id: crypto.randomUUID(), title: "feature2", status: false },
-                { id: crypto.randomUUID(), title: "feature3", status: false }
-            ]
-        }] as projectType[]
-    })
+    const [state, dispatch] = useReducer(reducerFunction, { projects: JSON.parse(localStorage.getItem("projects") || "[]") })
+
+    useEffect(() => {
+        localStorage.setItem("projects", JSON.stringify(state.projects))
+        console.table(state.projects)
+    }, [state.projects])
+
     return { state, dispatch }
 }

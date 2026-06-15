@@ -13,30 +13,46 @@ const inputStyle = {
 
 
 export default function FormAction() {
-    
+
     const addProjectAction = useAddProject()
     const [newProjectState, formAction, isPending] = useActionState(addProjectAction, null)
     const [featureArray, setArray] = useState<string[]>(["feature1"]);
+    const [techArray, setTech] = useState<number[]>([1]);
 
     const handleAddFeature = () => {
         setArray([...featureArray, `${featureArray.length + 1}`]);
     }
+
+    const handleAddTech = () => {
+        setTech([...techArray, techArray.length + 1]);
+    }
     return (
         <>
             <form action={formAction} >
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "10px", marginBottom: "20px" }}>
-                    
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+
                     {/* inputs */}
                     <div style={{ paddingRight: "10px", display: "flex", flexDirection: "column", gap: "10px", borderRight: '1px solid #ccc' }}>
                         <label style={{ fontSize: "18px", marginTop: "10px" }}>Project Details</label>
                         <input style={inputStyle} name="name" placeholder="name" />
                         <input style={inputStyle} name="domain" placeholder="domain" />
-                        <input style={inputStyle} name="techStack" placeholder="Tech-stack" />
                         <textarea style={{ ...inputStyle, height: "100px" }} name="summary" placeholder="summary" />
                     </div>
 
+                    {/* techstack */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", height: "fit-content", borderRight: '1px solid #ccc', paddingRight: "10px" }}>
+                        <label style={{ fontSize: "18px" }}>Tech-Stack</label>
+                        {techArray.map((index) => (
+                            <div key={crypto.randomUUID()} style={{ display: "flex", gap: "5px" }}>
+                                <h3>{index}</h3>
+                                <input style={{ ...inputStyle, width: "100%" }} name="techStack" placeholder="" />
+                            </div>
+                        ))}
+                        <button style={{ marginTop: "10px", width: "100%", padding: "8px", fontSize: "18px", border: "1px solid black", borderRadius: 10 }} type="button" onClick={handleAddTech}> Add Tech </button>
+                    </div>
+
                     {/* features */}
-                    <div  style={{ display: "flex", flexDirection: "column", gap: "10px", height: "fit-content" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", height: "fit-content" }}>
                         <label style={{ fontSize: "18px" }}>Features</label>
                         {featureArray.map((feature, index) => (
                             <div key={crypto.randomUUID()} style={{ display: "flex", gap: "5px" }}>

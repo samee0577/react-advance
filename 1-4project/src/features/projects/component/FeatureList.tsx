@@ -14,7 +14,7 @@ export default function FeatureList(ThisProject: projectType) {
     function handleToggle(featureId: string) {
         try {
             dispatch({ type: "TOGGLE_FEATURE", payload: { projectId: ThisProject.id, featureId: featureId } });
-            dispatch({ type: "UPADTE_completion", payload: { projectId: ThisProject.id } })
+            dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProject.id } })
         } catch (error) {
             toast.error("Error toggling feature")
         }

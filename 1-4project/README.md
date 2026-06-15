@@ -73,15 +73,23 @@ export default defineConfig([
 ```
 
 next task : 
-1.change the feature from string to object array
- each obj includes the done : bool and the task it self  :string
- chnage the ui to be a toggle button
+1.change the feature from string to object array DONE
+ each obj includes the done : bool and the task it self  :string DONE
+ chnage the ui to be a toggle button DONE
 
-2.make the comletion field have actual percentage OR make a new percentage field  
+2.make the comletion field have actual percentage OR make a new percentage field  DONE
 
-3.create use hook for it to be able to toggle it status 
- useReducer and... we need to brqaian strom this 
+3.create use hook for it to be able to toggle it status DONE
+ useReducer and... we need to brqaian strom this DONE
 
-4.multiple input option techstack 
-5.layout divide into 3 parts 
-6.percentage data transfer to ProjectDetails  
+4.multiple input option techstack DONE
+5.layout divide into 3 parts DONE
+6.percentage data transfer to ProjectDetails  DONE
+
+7.create tech stack ui 
+8.update feature and update tech stack with ui 
+9.updatable every field 
+10.removable everything (project ,feature ,tech)
+
+about: 
+people can create track manage their projects here help them better decide their requirement, project prep time saver using AI . helping them decide whats the best language, stack, feature listing for their given project summary.

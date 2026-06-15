@@ -7,9 +7,9 @@ export default function ProjectDetails() {
     const context = use(ProjectsContext)
     if (!context) throw new Error("useProject must be used within a ProjectProvider")
     const { state } = context
-    
+
     const { projectId } = useParams()
-    
+
     const ThisProject = state.projects.find((project) => project.id === projectId)
     return (
         <>
@@ -18,10 +18,10 @@ export default function ProjectDetails() {
                 ThisProject ? (
                     <>
                         <h1>{ThisProject.name}</h1>
-                        <p><h2>Summary:</h2>{ThisProject.summary}</p>
-                        <p><h2>Domain:</h2>{ThisProject.domain}</p>
-                        <p><h2>Tech Stack:</h2>{ThisProject.techStack}</p>
-                        <p><h2>Completion:</h2>{ThisProject.completion}%</p>
+                        <h2>Summary:</h2>{ThisProject.summary}
+                        <h2>Domain:</h2>{ThisProject.domain}
+                        <h2>Tech Stack:</h2>{ThisProject.techStack}
+                        <h2>Completion:</h2>{ThisProject.completion}%
                         {FeatureList(ThisProject)}
                     </>
                 ) :
