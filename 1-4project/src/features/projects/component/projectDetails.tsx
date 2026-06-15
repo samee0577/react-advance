@@ -2,6 +2,7 @@ import { ProjectsContext } from "../context/projectContext"
 import { use } from "react"
 import { useParams } from "react-router-dom"
 import FeatureList from "./FeatureList"
+import StackList from "./TechList"
 
 export default function ProjectDetails() {
     const context = use(ProjectsContext)
@@ -9,8 +10,10 @@ export default function ProjectDetails() {
     const { state } = context
 
     const { projectId } = useParams()
-
     const ThisProject = state.projects.find((project) => project.id === projectId)
+
+
+
     return (
         <>
             <h1>Project Detail</h1>
@@ -20,7 +23,7 @@ export default function ProjectDetails() {
                         <h1>{ThisProject.name}</h1>
                         <h2>Summary:</h2>{ThisProject.summary}
                         <h2>Domain:</h2>{ThisProject.domain}
-                        <h2>Tech Stack:</h2>{ThisProject.techStack}
+                        <StackList techStack={ThisProject.techStack} />
                         <h2>Completion:</h2>{ThisProject.completion}%
                         {FeatureList(ThisProject)}
                     </>
@@ -31,4 +34,6 @@ export default function ProjectDetails() {
             }
         </>
     )
+
+
 } 
