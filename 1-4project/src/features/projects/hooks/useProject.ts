@@ -59,14 +59,27 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                                 {
                                     id: crypto.randomUUID(),
                                     title: action.payload.tasks,
-                                    status:false
+                                    status: false
                                 }
                             ]
                         };
                     }
                     return project;
                 })
-            }
+            };
+        case "DELETE_TASK":
+            return {
+                ...state,
+                projects: state.projects.map((project) => {
+                    if (project.id === action.payload.projectId) {
+                        return {
+                            ...project,
+                            features: project.features.filter((feature) => feature.id !== action.payload.featureId)
+                        };
+                    }
+                    return project;
+                })
+            };
         default:
             return state
     }

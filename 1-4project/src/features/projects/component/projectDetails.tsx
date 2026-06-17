@@ -6,6 +6,7 @@ import StackList from "./TechList"
 import { MyProgress } from "./ProgressBar"
 
 export default function ProjectDetails() {
+
     const context = use(ProjectsContext)
     if (!context) throw new Error("useProject must be used within a ProjectProvider")
     const { state, dispatch } = context
@@ -14,7 +15,6 @@ export default function ProjectDetails() {
     const ThisProject = state.projects.find((project) => project.id === projectId)
 
     const [task, setTask] = useState<string>("")
-    const [isOpen, setIsOpen] = useState<boolean>(false)
 
     function handleAddNew(task: string) {
         if (ThisProject === undefined) return
@@ -22,15 +22,14 @@ export default function ProjectDetails() {
         dispatch({ type: "ADD_TASK", payload: { projectId: ThisProject.id, tasks: task } })
         dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProject.id } })
         setTask("")
+        closepopup()
     }
 
     const dialogRef = useRef<HTMLDialogElement>(null)
     const openpopup = () => {
-        setIsOpen(true)
         dialogRef.current?.showModal()
     }
-    const closepopup = () =>{
-        setIsOpen(false)
+    const closepopup = () => {
         dialogRef.current?.close()
     }
 
@@ -40,7 +39,7 @@ export default function ProjectDetails() {
             {
                 ThisProject ? (
                     <div className="project-grid-container">
-                        <div style={{ borderRight: "1px solid #999", paddingRight: "20px", marginRight: "20px" }}>
+                        <div style={{ borderRight: "1px solid #999", paddingRight: "20px", marginRight: "10px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <h1>{ThisProject.name}</h1>
                                 <MyProgress completion={ThisProject.completion} />
@@ -49,27 +48,30 @@ export default function ProjectDetails() {
                             <h2>Summary:</h2>{ThisProject.summary}
                             <StackList techStack={ThisProject.techStack} />
                         </div>
-                        <div>
+                        <div style={{marginRight:"20px"}}>
                             <FeatureList ThisProject={ThisProject} />
                             <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openpopup}>Add New Task</button>
-                                <dialog ref={dialogRef} className="popup">
+                            <dialog ref={dialogRef} className="popup" onClose={closepopup} >
+                                <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleAddNew(task) }}>
                                     <h2>Add a New Task</h2>
                                     <input
                                         type="text"
+                                        value={task}
                                         className="popup-input"
                                         placeholder="Enter Task"
                                         onChange={(e) => setTask(e.target.value)}
                                     />
 
                                     <div className="popup-actions">
-                                        <button className="popup-btn-primary" onClick={() => handleAddNew(task)}>
+                                        <button className="popup-btn-primary" type="submit" onClick={() => handleAddNew(task)}>
                                             Add Task
                                         </button>
-                                        <button className="popup-btn-secondary" onClick={closepopup}>
+                                        <button className="popup-btn-secondary" type="button" onClick={closepopup}>
                                             Close
                                         </button>
                                     </div>
-                                </dialog>
+                                </form>
+                            </dialog>
                         </div>
                     </div >
                 ) :
