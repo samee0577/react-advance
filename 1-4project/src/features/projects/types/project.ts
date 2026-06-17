@@ -3,7 +3,7 @@ export type action =
     { type: "REMOVE_PROJECT", payload: { projectId: string } } |
     { type: "TOGGLE_FEATURE", payload: { projectId: string, featureId: string } } |
     { type: "UPDATE_COMPLETION", payload: { projectId: string } } |
-    { type: "ADD_TASKS", payload: { projectId: string, tasks: string[] } }
+    { type: "ADD_TASK", payload: { projectId: string, tasks: string } }
 
 export interface projectType {
     id: string,

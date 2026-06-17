@@ -47,20 +47,21 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     return project;
                 })
             };
-        case "ADD_TASKS":
+        case "ADD_TASK":
             return {
                 ...state,
                 projects: state.projects.map((project) => {
                     if (project.id === action.payload.projectId) {
                         return {
                             ...project,
-                            features: [...project.features, action.payload.tasks.map((task) => {
-                                return {
+                            features: [
+                                ...project.features,
+                                {
                                     id: crypto.randomUUID(),
-                                    title: task,
-                                    status: false
+                                    title: action.payload.tasks,
+                                    status:false
                                 }
-                            })]
+                            ]
                         };
                     }
                     return project;

@@ -91,3 +91,98 @@ body {
   border: 1px solid black;
   border-radius: 10px;
 }
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+dialog.popup {
+  position: relative;
+  border: 2px solid black;
+  border-radius: 12px;
+  background: white;
+  padding: 25px;
+  width: 90%;
+  max-width: 450px;
+  margin: 0; /* Resets default browser dialog margins */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.popup h2 {
+  margin: 0 0 5px 0;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  color: black;
+}
+
+.popup-input {
+  width: 100%;
+  padding: 12px;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  border: 1px solid black;
+  border-radius: 8px;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.popup-input:focus {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.popup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.popup-btn-primary {
+  flex: 2;
+  padding: 10px;
+  background-color: black;
+  color: white;
+  border: 1px solid black;
+  border-radius: 8px;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.popup-btn-primary:hover {
+  opacity: 0.85;
+}
+
+.popup-btn-secondary {
+  flex: 1;
+  padding: 10px;
+  background-color: transparent;
+  color: black;
+  border: 1px solid black;
+  border-radius: 8px;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.popup-btn-secondary:hover {
+  background-color: #f5f5f5;
+}
