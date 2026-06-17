@@ -8,10 +8,14 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                 ...state,
                 projects: [...state.projects, action.payload]
             };
+        case 'REMOVE_PROJECT':
+            return {
+                ...state,
+                projects: state.projects.filter((project) => project.id !== action.payload.projectId)
+            };
         case 'TOGGLE_FEATURE':
             return {
                 ...state,
-
                 projects: state.projects.map((project) => {
                     if (project.id === action.payload.projectId) {
                         return {
@@ -38,6 +42,25 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                         return {
                             ...project,
                             completion: Math.floor((project.features.filter((feature) => feature.status).length / project.features.length) * 100),
+                        };
+                    }
+                    return project;
+                })
+            };
+        case "ADD_TASKS":
+            return {
+                ...state,
+                projects: state.projects.map((project) => {
+                    if (project.id === action.payload.projectId) {
+                        return {
+                            ...project,
+                            features: [...project.features, action.payload.tasks.map((task) => {
+                                return {
+                                    id: crypto.randomUUID(),
+                                    title: task,
+                                    status: false
+                                }
+                            })]
                         };
                     }
                     return project;

@@ -48,7 +48,7 @@ export default function FormAction() {
                                 <input style={{ ...inputStyle, width: "100%" }} name="techStack" placeholder="" />
                             </div>
                         ))}
-                        <button style={{ marginTop: "10px", width: "100%", padding: "8px", fontSize: "18px", border: "1px solid black", borderRadius: 10 }} type="button" onClick={handleAddTech}> Add Tech </button>
+                        <button className="allButton" type="button" onClick={handleAddTech}> Add Tech </button>
                     </div>
 
                     {/* features */}
@@ -60,10 +60,10 @@ export default function FormAction() {
                                 <input style={{ ...inputStyle, width: "100%" }} name="features" placeholder="features" />
                             </div>
                         ))}
-                        <button style={{ marginTop: "10px", width: "100%", padding: "8px", fontSize: "18px", border: "1px solid black", borderRadius: 10 }} type="button" onClick={handleAddFeature}> Add More Features </button>
+                        <button className="allButton" type="button" onClick={handleAddFeature}> Add More Features </button>
                     </div>
                 </div>
-                <button style={{ marginTop: "10px", width: "100%", padding: "10px", fontSize: "18px", border: "1px solid black", borderRadius: 10 }} type="submit" disabled={isPending}>
+                <button className="allButton" type="submit" disabled={isPending}>
                     {isPending ? "Creating..." : "Create Project"}
                 </button>
             </form>

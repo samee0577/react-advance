@@ -5,32 +5,32 @@ import { Link } from "react-router-dom";
 
 
 export default function ProjectsList() {
-
-    const context = use(ProjectsContext)
-    if (!context) {
-        throw new Error("useProject must be used within a ProjectProvider")
+    const context = use(ProjectsContext);
+    
+    // Clean, combined production check
+    if (!context || !context.state) {
+        throw new Error("ProjectsList must be used within a properly initialized ProjectProvider");
     }
 
-    const state = context?.state
-
-    if (!state) {
-        throw new Error("state is undefined")
-    }
-    const projects = state.projects
-
+    const { projects } = context.state;
+    
     return (
-        <div >
+        <div>
             <h1>Projects</h1>
-            <Link to="/newProject"  >
-                <button style={{padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10}}>
-                    Add Ew Project
+            <Link to="/newProject">
+                <button style={{ padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10, cursor: "pointer" }}>
+                    Add New Project
                 </button>
             </Link>
-            <div style={{ display:"grid", gridTemplateColumns: "1fr 1fr 1fr 1fr",gap: "10px"}}>
+            
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
                 {projects.map((project) => (
-                    <ProjectCard  key={project.id} project={project} />
+                    <ProjectCard 
+                        key={project.id} 
+                        project={project}
+                    />
                 ))}
             </div>
         </div>
-    )
-}  
+    );
+}

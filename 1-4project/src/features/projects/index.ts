@@ -1,4 +1,4 @@
-export { default as FormAction} from "./component/formACtion.tsx"
+export { default as FormAction} from "./component/formAction"
 export { default as ProjectCard } from "./component/projectCard"
 export { default as ProjectProvider } from "./context/projectContext.tsx"
 export { default as ProjectsList } from "./component/ProjectsGrid"

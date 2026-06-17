@@ -86,8 +86,8 @@ next task :
 5.layout divide into 3 parts DONE
 6.percentage data transfer to ProjectDetails  DONE
 
-7.create tech stack ui 
-8.update feature and update tech stack with ui 
+7.create tech stack ui DONE
+8. i.append to feature and ii. update tech stack array with iii. ui button 
 9.updatable every field 
 10.removable everything (project ,feature ,tech)
 

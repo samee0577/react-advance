@@ -3,6 +3,7 @@ import { use } from "react"
 import { useParams } from "react-router-dom"
 import FeatureList from "./FeatureList"
 import StackList from "./TechList"
+import { MyProgress } from "./ProgressBar"
 
 export default function ProjectDetails() {
     const context = use(ProjectsContext)
@@ -16,17 +17,23 @@ export default function ProjectDetails() {
 
     return (
         <>
-            <h1>Project Detail</h1>
             {
                 ThisProject ? (
-                    <>
-                        <h1>{ThisProject.name}</h1>
-                        <h2>Summary:</h2>{ThisProject.summary}
-                        <h2>Domain:</h2>{ThisProject.domain}
-                        <StackList techStack={ThisProject.techStack} />
-                        <h2>Completion:</h2>{ThisProject.completion}%
-                        {FeatureList(ThisProject)}
-                    </>
+                    <div className="project-grid-container">
+                        <div style={{ borderRight: "1px solid #999", paddingRight: "20px", marginRight: "20px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                <h1>{ThisProject.name}</h1>
+                                <MyProgress completion={ThisProject.completion} />
+                            </div>
+                            <h2 style={{ marginTop: "0px", fontWeight: "400" }}>{ThisProject.domain}</h2>
+                            <h2>Summary:</h2>{ThisProject.summary}
+                            <StackList techStack={ThisProject.techStack} />
+                        </div>
+                        <div>
+                            <FeatureList ThisProject={ThisProject} />
+                            <button className="allButton" style={{ marginTop: "10px", width: "100%" }}>Add New Feature</button>
+                        </div>
+                    </div >
                 ) :
                     <h2>
                         Theres no project detail !
