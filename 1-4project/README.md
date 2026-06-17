@@ -87,9 +87,10 @@ next task :
 6.percentage data transfer to ProjectDetails  DONE
 
 7.create tech stack ui DONE
-8. i.append to feature and ii. update tech stack array with iii. ui button 
+8.append to feature ui button DONE
 9.updatable every field 
-10.removable everything (project ,feature ,tech)
+10.removable everything (project ,feature ,tech) 
+11.update tech stack array
 
 about: 
 people can create track manage their projects here help them better decide their requirement, project prep time saver using AI . helping them decide whats the best language, stack, feature listing for their given project summary.

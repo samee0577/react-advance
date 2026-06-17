@@ -51,27 +51,25 @@ export default function ProjectDetails() {
                         </div>
                         <div>
                             <FeatureList ThisProject={ThisProject} />
-                            <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openpopup}>Add New Feature</button>
-                            {isOpen && <div className="popup-overlay">
-                                <dialog ref={dialogRef} className="popup" open>
-                                    <h2>Add a New Feature</h2>
+                            <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openpopup}>Add New Task</button>
+                                <dialog ref={dialogRef} className="popup">
+                                    <h2>Add a New Task</h2>
                                     <input
                                         type="text"
                                         className="popup-input"
-                                        placeholder="Enter feature"
+                                        placeholder="Enter Task"
                                         onChange={(e) => setTask(e.target.value)}
                                     />
 
                                     <div className="popup-actions">
                                         <button className="popup-btn-primary" onClick={() => handleAddNew(task)}>
-                                            Add Feature
+                                            Add Task
                                         </button>
                                         <button className="popup-btn-secondary" onClick={closepopup}>
                                             Close
                                         </button>
                                     </div>
                                 </dialog>
-                            </div>}
                         </div>
                     </div >
                 ) :
