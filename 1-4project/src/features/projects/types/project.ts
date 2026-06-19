@@ -3,8 +3,9 @@ export type action =
     { type: "REMOVE_PROJECT", payload: { projectId: string } } |
     { type: "TOGGLE_FEATURE", payload: { projectId: string, featureId: string } } |
     { type: "UPDATE_COMPLETION", payload: { projectId: string } } |
-    { type: "ADD_TASK", payload: { projectId: string, tasks: string } } |
-    { type: "DELETE_TASK", payload: { projectId: string, featureId: string } }
+    { type: "ADD_TASK", payload: { projectId: string, task: string } } |
+    { type: "DELETE_TASK", payload: { projectId: string, featureId: string } } |
+    { type: "EDIT_PROJECT", payload: { projectId: string, newName: string, newSummary: string, newDomain: string, newTechStack: string[] } }
 
 export interface projectType {
     id: string,

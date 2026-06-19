@@ -27,7 +27,7 @@ export function FeatureItem({ feature, ThisProjectId ,onDeleteSuccess}: { featur
         try {
             dispatch({ type: "DELETE_TASK", payload: { projectId: ThisProjectId, featureId: featureId } });
             dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProjectId } });
-            onDeleteSuccess();
+            toast.success("Feature deleted successfully");
         } catch (error) {
             toast.error("Error deleting feature");
         }

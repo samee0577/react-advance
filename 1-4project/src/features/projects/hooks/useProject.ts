@@ -41,7 +41,7 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     if (project.id === action.payload.projectId) {
                         return {
                             ...project,
-                            completion: Math.floor((project.features.filter((feature) => feature.status).length / project.features.length) * 100),
+                            completion: project.features.length === 0 ? 0 : Math.floor((project.features.filter((feature) => feature.status).length / project.features.length) * 100),
                         };
                     }
                     return project;
@@ -58,7 +58,7 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                                 ...project.features,
                                 {
                                     id: crypto.randomUUID(),
-                                    title: action.payload.tasks,
+                                    title: action.payload.task,
                                     status: false
                                 }
                             ]
@@ -80,6 +80,24 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     return project;
                 })
             };
+        case "EDIT_PROJECT":
+            return {
+                ...state,
+                projects: state.projects.map((project) => {
+                    if (project.id === action.payload.projectId) {
+                        return {
+                            ...project,
+                            name: action.payload.newName,
+                            summary: action.payload.newSummary,
+                            domain: action.payload.newDomain,
+                            techStack: action.payload.newTechStack,
+                        }
+                    }
+                    else {
+                        return project
+                    }
+                })
+            }
         default:
             return state
     }

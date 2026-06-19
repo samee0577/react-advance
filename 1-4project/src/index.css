@@ -207,3 +207,12 @@ dialog.popup[open] {
 .popup-btn-secondary:hover {
   background-color: #f5f5f5;
 }
+
+.edit{
+  margin-top: 10px;
+  padding: 10px 25px;
+  font-size: 18px;
+  border: 1px solid black;
+  border-radius: 10px;
+  align-self: center;
+}
