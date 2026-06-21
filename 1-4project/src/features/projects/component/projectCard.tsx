@@ -3,6 +3,7 @@ import type { projectType } from "../types/project";
 import { MyProgress } from "./ProgressBar";
 import { use } from "react";
 import { ProjectsContext } from "../context/projectContext";
+import useDialog from "../hooks/useDialog";
 
 export default function ProjectCard({ project }: { project: projectType }) {
 
@@ -14,36 +15,47 @@ export default function ProjectCard({ project }: { project: projectType }) {
 
     const { dispatch } = context;
 
+    const { dialogRef, openDialog, closeDialog } = useDialog();
+
     const handleDeleteClick = (e: React.MouseEvent) => {
-        // 1. Prevent the Link component from navigating
         e.preventDefault();
-        // 2. Prevent the click from bubbling up to the Link
         e.stopPropagation();
 
-        // 3. Production safety check
-        const confirmDelete = window.confirm(`Are you sure you want to delete "${project.name}"?`);
-        if (confirmDelete) {
-            dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
-        }
+        openDialog();
     };
 
     return (
-        <Link to={`/projectDetail/${project.id}`} style={{ textDecoration: "none", color: "black" }}>
+        <>
+            <dialog ref={dialogRef} className="popup">
+                <p className="popupText">Are you sure you want to delete "{project.name}"?</p>
+                <button type="button" className="popup-btn-primary" onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeDialog();
+                }}>Cancel</button>
+                <button type="button" className="popup-btn-secondary" onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
+                    closeDialog();
+                }}>Delete</button>
+            </dialog>
+
             <div style={{
                 padding: "15px",
                 margin: "5px",
                 border: "1px solid #ccc",
                 borderRadius: 10,
-                position: "relative", // Required to position the close button absolutely
+                position: "relative",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
             }}>
 
-                {/* Clean, Accessible Delete Button */}
+                {/* Clean, accessible delete button outside the link */}
                 <button
+                    type="button"
                     onClick={handleDeleteClick}
                     aria-label={`Delete ${project.name}`}
                     className="deleteButton"
-                    // Quick hover effect for production polish
                     onMouseEnter={(e) => {
                         e.currentTarget.style.color = "red";
                         e.currentTarget.style.backgroundColor = "#fff5f5";
@@ -56,12 +68,14 @@ export default function ProjectCard({ project }: { project: projectType }) {
                     &times;
                 </button>
 
-                <div style={{ display: "grid", gridTemplateColumns: "4fr 1fr", gap: "10px", paddingRight: "20px" }}>
-                    <h2 style={{ margin: "0 0 10px 0", fontSize: "1.25rem" }}>{project.name}</h2>
-                    <MyProgress completion={project.completion} />
-                </div>
-                <p style={{ margin: 0, color: "#555" }}>summary: {project.summary}</p>
+                <Link to={`/projectDetail/${project.id}`} style={{ textDecoration: "none", color: "black" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "4fr 1fr", gap: "10px", paddingRight: "20px" }}>
+                        <h2 style={{ margin: "0 0 10px 0", fontSize: "1.25rem" }}>{project.name}</h2>
+                        <MyProgress completion={project.completion} />
+                    </div>
+                    <p style={{ margin: 0, color: "#555" }}>summary: {project.summary}</p>
+                </Link>
             </div>
-        </Link>
+        </>
     );
 }

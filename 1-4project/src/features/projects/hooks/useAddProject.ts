@@ -8,7 +8,7 @@ export function useAddProject() {
     if (!context) throw new Error("useProject must be used within a ProjectProvider")
     const { dispatch } = context
 
-    function addProjectAction(prevState: any, formData: FormData) {
+    function addProjectAction(_prevState: any, formData: FormData) {
         
         const features = formData.getAll('features') as Array<string>
         const featureObjArray = features.map(feature => ({ id: crypto.randomUUID(), title: feature, status: false }))
