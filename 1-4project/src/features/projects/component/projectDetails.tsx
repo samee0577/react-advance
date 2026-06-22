@@ -17,7 +17,7 @@ export default function ProjectDetails() {
     const { projectId } = useParams()
     const ThisProject = state.projects.find((project) => project.id === projectId)
 
-    const [task, setTask] = useState<string>("")
+    const [feature, setfeature] = useState<string>("")
     const [editProject, setEditProject] = useState<projectType>({
         id: ThisProject?.id || "",
         name: ThisProject?.name || "",
@@ -44,18 +44,18 @@ export default function ProjectDetails() {
         setEditProject({ ...editProject, techStack: newTechStack })
     }
 
-    function handleAddNew(task: string) {
+    function handleAddNew(featureName: string) {
         if (ThisProject === undefined) return
-        if (task.trim() === '') return
+        if (featureName.trim() === '') return
 
         try {
-            dispatch({ type: "ADD_FEATURE", payload: { projectId: ThisProject.id, task: task } })
+            dispatch({ type: "ADD_FEATURE", payload: { projectId: ThisProject.id, tasks: [{ id: crypto.randomUUID(), title: 'temp text', status: false }], feature: featureName } })
             dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProject.id } })
-            setTask("")
-            // toast.success("Task added successfully")
+            setfeature("")
+            // toast.success("feature added successfully")
             closeDialog()
         } catch (error) {
-            toast.error("Error adding task");
+            toast.error("Error adding feature");
         }
     }
 
@@ -171,21 +171,21 @@ export default function ProjectDetails() {
                         </div>
                         <div style={{ marginRight: "20px" }}>
                             <FeatureList ThisProject={ThisProject} />
-                            <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openDialog}>Add New Task</button>
+                            <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openDialog}>Add New feature</button>
                             <dialog ref={dialogRef} className="popup" onClose={closeDialog} >
-                                <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleAddNew(task) }}>
-                                    <h2>Add a New Task</h2>
+                                <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleAddNew(feature) }}>
+                                    <h2>Add a New Feature</h2>
                                     <input
                                         type="text"
-                                        value={task}
+                                        value={feature}
                                         className="popup-input"
-                                        placeholder="Enter Task"
-                                        onChange={(e) => setTask(e.target.value)}
+                                        placeholder="Enter feature"
+                                        onChange={(e) => setfeature(e.target.value)}
                                     />
 
                                     <div className="popup-actions">
-                                        <button className="popup-btn-primary" type="submit" onClick={() => handleAddNew(task)}>
-                                            Add Task
+                                        <button className="popup-btn-primary" type="submit" onClick={() => handleAddNew(feature)}>
+                                            Add feature
                                         </button>
                                         <button className="popup-btn-secondary" type="button" onClick={closeDialog}>
                                             Close

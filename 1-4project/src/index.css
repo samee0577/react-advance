@@ -130,6 +130,11 @@ body {
   font-weight: 400;
 }
 
+.deleteButton:hover {
+  color: red;
+  background-color: #a0a0a040;
+}
+
 .project-grid-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -144,7 +149,7 @@ body {
   padding: 8px;
   font-size: 18px;
   border: 1px solid black;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .popup-overlay {

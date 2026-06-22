@@ -37,9 +37,9 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                                 ...project.features,
                                 {
                                     id: crypto.randomUUID(),
-                                    title: action.payload.task,
+                                    title: action.payload.feature,
                                     status: false,
-                                    tasks: action.payload.task
+                                    tasks: action.payload.tasks
                                 }
                             ]
                         };
