@@ -13,28 +13,20 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                 ...state,
                 projects: state.projects.filter((project) => project.id !== action.payload.projectId)
             };
-        case 'TOGGLE_FEATURE':
+        case "UPDATE_COMPLETION":
             return {
                 ...state,
                 projects: state.projects.map((project) => {
                     if (project.id === action.payload.projectId) {
                         return {
                             ...project,
-                            features: project.features.map((f) => {
-                                if (f.id === action.payload.featureId) {
-                                    return {
-                                        ...f,
-                                        features: !f.status
-                                    };
-                                }
-                                return f;
-                            })
+                            completion: project.features.length === 0 ? 0 : Math.floor((project.features.filter((feature) => feature.status).length / project.features.length) * 100),
                         };
                     }
                     return project;
                 })
             };
-        case "ADD_TASK":
+        case "ADD_FEATURE":
             return {
                 ...state,
                 projects: state.projects.map((project) => {
@@ -46,7 +38,8 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                                 {
                                     id: crypto.randomUUID(),
                                     title: action.payload.task,
-                                    status: false
+                                    status: false,
+                                    tasks: action.payload.task
                                 }
                             ]
                         };
@@ -54,7 +47,7 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     return project;
                 })
             };
-        case "DELETE_TASK":
+        case "DELETE_FEATURE":
             return {
                 ...state,
                 projects: state.projects.map((project) => {
@@ -110,6 +103,16 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     }
                     return project;
                 })
+            };
+        case "ADD_NEW_TASK":
+            return{
+                ...state,
+                //later
+        };
+        case "REMOVE_TASK":
+            return {
+                ...state,
+                //later
             }
         default:
             return state

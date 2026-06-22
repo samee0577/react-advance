@@ -49,7 +49,7 @@ export default function ProjectDetails() {
         if (task.trim() === '') return
 
         try {
-            dispatch({ type: "ADD_TASK", payload: { projectId: ThisProject.id, task: task } })
+            dispatch({ type: "ADD_FEATURE", payload: { projectId: ThisProject.id, task: task } })
             dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProject.id } })
             setTask("")
             // toast.success("Task added successfully")

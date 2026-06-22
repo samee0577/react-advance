@@ -1,12 +1,14 @@
 export type action =
     { type: "ADD_PROJECT", payload: projectType } |
     { type: "REMOVE_PROJECT", payload: { projectId: string } } |
-    { type: "TOGGLE_FEATURE", payload: { projectId: string, featureId: string } } |
-    { type: "UPDATE_COMPLETION", payload: { projectId: string } } |
-    { type: "ADD_TASK", payload: { projectId: string, task: string } } |
-    { type: "DELETE_TASK", payload: { projectId: string, featureId: string } } |
     { type: "EDIT_PROJECT", payload: { projectId: string, newName: string, newSummary: string, newDomain: string, newTechStack: string[] } } |
-    { type:"TOGGLE_TASK", payload: { projectId: string, featureId: string, taskId: string } }
+    { type: "UPDATE_COMPLETION", payload: { projectId: string } } |
+    { type: "ADD_FEATURE", payload: { projectId: string, task: string } } |
+    { type: "DELETE_FEATURE", payload: { projectId: string, featureId: string } } |
+    { type: "TOGGLE_TASK", payload: { projectId: string, featureId: string, taskId: string } } |
+    // TO BE DONE LATER
+    { type: "REMOVE_TASK", payload: { projectId: string, featureId: string, taskId: string } } |
+    { type: "ADD_NEW_TASK", payload: { projectId: string, featureId: string, task: string } }
 
 export interface projectType {
     id: string,
