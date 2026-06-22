@@ -11,7 +11,7 @@ export function useAddProject() {
     function addProjectAction(_prevState: any, formData: FormData) {
         
         const features = formData.getAll('features') as Array<string>
-        const featureObjArray = features.map(feature => ({ id: crypto.randomUUID(), title: feature, status: false }))
+        const featureObjArray = features.map(feature => ({ id: crypto.randomUUID(), title: feature, status: false , tasks: [] }))
            
         const name = formData.get('name') as string
         const Name = name.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')

@@ -13,6 +13,58 @@ export default function ProjectsList() {
     }
 
     const { projects } = context.state;
+
+    const {dispatch}=context
+    function demoProject(){
+            dispatch({ type: "ADD_PROJECT", payload: {
+        id: crypto.randomUUID(),
+        name: "abc",
+        summary: "abc",
+        domain: "abc",
+        techStack: ["abc", "def"],
+        completion: 0,
+        features: [{
+            id:crypto.randomUUID(),
+            title: "abc",
+            status: false,
+            tasks: [{
+                id:crypto.randomUUID(),
+                title: "abc",
+                status: false
+            },
+            {
+                id:crypto.randomUUID(),
+                title: "def",
+                status: false
+            },
+            {
+                id:crypto.randomUUID(),
+                title: "ghi",
+                status: false
+            }]
+        },
+        {
+            id:crypto.randomUUID(),
+            title: "generational lockin",
+            status: false,
+            tasks: [{
+                id:crypto.randomUUID(),
+                title: "activating lockin mode",
+                status: false
+            },
+            {
+                id:crypto.randomUUID(),
+                title: "def",
+                status: false
+            },
+            {
+                id:crypto.randomUUID(),
+                title: "ghi",
+                status: false
+            }]
+        }]
+    } })
+    }
     
     return (
         <div>
@@ -22,6 +74,9 @@ export default function ProjectsList() {
                     Add New Project
                 </button>
             </Link>
+                <button onClick={demoProject} style={{ padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10, cursor: "pointer" , backgroundColor:"red"}}>
+                    demo project [temp button]
+                </button>
             
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
                 {projects.map((project) => (

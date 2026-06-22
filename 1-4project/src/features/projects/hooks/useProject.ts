@@ -20,28 +20,15 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     if (project.id === action.payload.projectId) {
                         return {
                             ...project,
-                            features: project.features.map((feature) => {
-                                if (feature.id === action.payload.featureId) {
+                            features: project.features.map((f) => {
+                                if (f.id === action.payload.featureId) {
                                     return {
-                                        ...feature,
-                                        status: !feature.status,
+                                        ...f,
+                                        features: !f.status
                                     };
                                 }
-                                return feature;
+                                return f;
                             })
-                        };
-                    }
-                    return project;
-                })
-            };
-        case "UPDATE_COMPLETION":
-            return {
-                ...state,
-                projects: state.projects.map((project) => {
-                    if (project.id === action.payload.projectId) {
-                        return {
-                            ...project,
-                            completion: project.features.length === 0 ? 0 : Math.floor((project.features.filter((feature) => feature.status).length / project.features.length) * 100),
                         };
                     }
                     return project;
@@ -96,6 +83,32 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                     else {
                         return project
                     }
+                })
+            };
+        case "TOGGLE_TASK":
+            return {
+                ...state,
+                projects: state.projects.map((project) => {
+                    if (project.id === action.payload.projectId) {
+                        const changedFeature = project.features.map((feature) => {
+                                if (feature.id === action.payload.featureId) {
+                                    const toggledTask= feature.tasks.map((t) => t.id === action.payload.taskId ? { ...t, status: !t.status } : t);
+                                    return {
+                                        ...feature,
+                                        tasks: toggledTask,
+                                        status: toggledTask.every((t) => t.status)
+                                    };
+                                }
+                                return feature;
+                            });
+                        console.log(changedFeature)
+                        return {
+                            ...project,
+                            features: changedFeature,
+                            completion: changedFeature.length === 0 ? 0 : Math.floor((changedFeature.filter((feature) => feature.status).length / changedFeature.length) * 100),
+                        };
+                    }
+                    return project;
                 })
             }
         default:

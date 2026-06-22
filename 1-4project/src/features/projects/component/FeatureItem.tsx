@@ -1,8 +1,9 @@
-import { use } from "react";
+import { use, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { ProjectsContext } from "../context/projectContext";
 import type { feature } from "../types/project";
 import useDialog from "../hooks/useDialog";
+
 
 export function FeatureItem({ feature, ThisProjectId }: { feature: feature; ThisProjectId: string; }) {
 
@@ -12,10 +13,12 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
     const { dispatch } = context;
 
 
-    function handleToggle(featureId: string) {
+    function handleToggle(taskId: string) {
         try {
-            dispatch({ type: "TOGGLE_FEATURE", payload: { projectId: ThisProjectId, featureId: featureId } });
-            dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProjectId } });
+            dispatch({
+                type: "TOGGLE_TASK",
+                payload: { projectId: ThisProjectId, featureId: feature.id, taskId: taskId }
+            })
         } catch (error) {
             toast.error("Error toggling feature");
         }
@@ -32,6 +35,8 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
     }
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
+    const [isExpanded, setIsExpanded] = useState(false);
+
 
     return (
         <div>
@@ -52,9 +57,29 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                 >
                     &times;
                 </button>
-                <button className="features" key={feature.id} onClick={() => { handleToggle(feature.id); }} data-status={feature.status ? "true" : "false"}>
-                    {feature.title}
-                </button>
+                <div className="feature-wrapper">
+                    <button
+                        className="features"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        data-status={feature.status ? "true" : "false"}
+                    >
+                        {feature.title}
+                    </button>
+                    {isExpanded && (
+                        <div className="tasks-container">
+                            {feature.tasks.map((task) => (
+                                <button
+                                    key={task.id}
+                                    className="task-item"
+                                    data-status={task.status ? "true" : "false"}
+                                    onClick={() => handleToggle(task.id)}
+                                >
+                                    {task.title}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
             <dialog ref={dialogRef} className="popup">
                 <h2>Are you sure you want to delete {feature.title}?</h2>

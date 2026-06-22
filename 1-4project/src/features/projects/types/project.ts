@@ -5,7 +5,8 @@ export type action =
     { type: "UPDATE_COMPLETION", payload: { projectId: string } } |
     { type: "ADD_TASK", payload: { projectId: string, task: string } } |
     { type: "DELETE_TASK", payload: { projectId: string, featureId: string } } |
-    { type: "EDIT_PROJECT", payload: { projectId: string, newName: string, newSummary: string, newDomain: string, newTechStack: string[] } }
+    { type: "EDIT_PROJECT", payload: { projectId: string, newName: string, newSummary: string, newDomain: string, newTechStack: string[] } } |
+    { type:"TOGGLE_TASK", payload: { projectId: string, featureId: string, taskId: string } }
 
 export interface projectType {
     id: string,
@@ -18,6 +19,13 @@ export interface projectType {
 }
 
 export type feature = {
+    id: string,
+    title: string
+    status: boolean
+    tasks: task[]
+}
+
+export type task = {
     id: string,
     title: string
     status: boolean
