@@ -39,7 +39,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
 
 
     return (
-        <div>
+        <div style={{alignSelf:"start"}}>
             <div style={{ position: "relative", height: "100%" }}>
                 <button
                     onClick={openDialog}
