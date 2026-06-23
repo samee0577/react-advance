@@ -28,17 +28,19 @@ export default function ProjectCard({ project }: { project: projectType }) {
         <>
             <dialog ref={dialogRef} className="popup">
                 <p className="popupText">Are you sure you want to delete "{project.name}"?</p>
-                <button type="button" className="popup-btn-primary" onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeDialog();
-                }}>Cancel</button>
-                <button type="button" className="popup-btn-secondary" onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
-                    closeDialog();
-                }}>Delete</button>
+                <div className="popup-actions">
+                    <button type="button" className="popup-btn-primary" onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
+                        closeDialog();
+                    }}>Delete</button>
+                    <button type="button" className="popup-btn-secondary" onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeDialog();
+                    }}>Cancel</button>
+                </div>
             </dialog>
 
             <div style={{
