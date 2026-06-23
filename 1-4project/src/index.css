@@ -262,3 +262,57 @@ dialog.popup[open] {
   border-radius: 10px;
   align-self: center;
 }
+
+.popup-tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  max-height: 220px; /* Prevents modal from breaking layout if you add too many tasks */
+  overflow-y: auto;  /* Adds a clean scrollbar if needed */
+  padding-right: 4px;
+}
+
+/* Custom "Add More Task" button matching your theme */
+.popup-add-btn {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed black; /* Dashed border looks killer with your brutalist theme */
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.popup-add-btn:hover {
+  background-color: #f5f5f5;
+}
+
+/* Clean, borderless title input for the Feature Name */
+.popup-feature-input {
+  width: 100%;
+  padding: 8px 0;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 500;
+  font-size: 22px; /* Bigger font so it acts like a header */
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  outline: none;
+  color: black;
+}
+
+/* Subtle styling for the placeholder to match your aesthetic */
+.popup-feature-input::placeholder {
+  color: #a0a0a0;
+  font-weight: 400;
+}
+
+/* Optional: If you want a super subtle indication when typing */
+.popup-feature-input:focus {
+  border-bottom: 1px dashed #a0a0a0; 
+}

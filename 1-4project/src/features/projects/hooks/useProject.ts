@@ -124,7 +124,6 @@ export default function useProject() {
 
     useEffect(() => {
         localStorage.setItem("projects", JSON.stringify(state.projects))
-        console.table(state.projects)
     }, [state.projects])
 
     return { state, dispatch }
