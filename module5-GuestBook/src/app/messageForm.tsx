@@ -1,7 +1,7 @@
 "use client"
 import addMessage from "./lib/db"
 
-export default async function MessageForm() {
+export default function MessageForm() {
 
     async function handleSubmit(formData: FormData) {
         const text = formData.get("guestName") as string

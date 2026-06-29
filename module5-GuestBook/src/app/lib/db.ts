@@ -1,3 +1,4 @@
+"use server";
 //just a ts interface 
 export type Message={
     id:string
