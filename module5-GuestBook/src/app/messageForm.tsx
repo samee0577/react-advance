@@ -1,15 +1,23 @@
 "use client"
-import addMessage from "./lib/db"
-import { useActionState } from "react"
+import addMessage, { Message } from "./lib/db"
+import { useActionState, useOptimistic } from "react"
 
-export default function MessageForm() {
-    
+export default function MessageForm({ messages }: { messages: Message[] }) {
+    const [optimisticMessages, setOptimisticMessages] = useOptimistic(
+        messages,
+        (currentMessages, newMessage) => [
+            ...currentMessages,
+            {id:crypto.randomUUID(), text:newMessage as string}
+        ]
+    )
+
     async function handleSubmit(prevState: null, formData: FormData): Promise<null> {
         const text = formData.get("guestName") as string
         if (text.trim() === '') {
             alert('Input cannot be blank!');
             return null;
         }
+        setOptimisticMessages(text)
         await addMessage(text).then((text) => {
             console.log("new message added:", text)
         });
@@ -27,6 +35,11 @@ export default function MessageForm() {
                     "Submitting..." :
                     "Submit"}
             </button>
+            <ul>
+                {optimisticMessages.map(m => (
+                    <li key={m.id}>{m.text}</li>
+                ))}
+            </ul>
         </form>
     )
 

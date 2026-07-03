@@ -6,14 +6,14 @@ export default async function Home() {
   return (
       <main style={{ padding: "20px" }}>
         <h1>Guestbook</h1>
-        <MessageForm />
-        <ul>
+        <MessageForm messages={messages} />
+        {/* <ul>
           {messages.map((m) => (
             <li key={m.id}>
               {m.text}
             </li>
           ))}
-        </ul>
+        </ul> */}
       </main>
   )
 }

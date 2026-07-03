@@ -17,13 +17,13 @@ let messages:Message[]=[
     }
 ]
 
-//fake fetching data
+//get messages
 export async function getMessages():Promise<Message[]>{
     await new Promise(res=>setTimeout(res,500))
     return messages
 }
 
-
+//add messages
 export default async function addMessage(text:string):Promise<Message>{
     await new Promise(res=>setTimeout(res,500))
     const newMessage={id:crypto.randomUUID(),text}
