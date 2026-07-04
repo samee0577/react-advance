@@ -1,8 +1,9 @@
 "use client"
 import addMessage, { Message } from "./lib/db"
-import { useActionState, useOptimistic } from "react"
+import { use, useActionState , useOptimistic } from "react"
 
-export default function MessageForm({ messages }: { messages: Message[] }) {
+export default function MessageForm({ messagePromise }: { messagePromise: Promise<Message[]> }) {
+    const messages = use(messagePromise)
     const [optimisticMessages, setOptimisticMessages] = useOptimistic(
         messages,
         (currentMessages, newMessage) => [

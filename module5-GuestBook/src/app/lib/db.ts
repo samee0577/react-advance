@@ -19,13 +19,13 @@ let messages:Message[]=[
 
 //get messages
 export async function getMessages():Promise<Message[]>{
-    await new Promise(res=>setTimeout(res,500))
+    await new Promise(res=>setTimeout(res,2000))
     return messages
 }
 
 //add messages
 export default async function addMessage(text:string):Promise<Message>{
-    await new Promise(res=>setTimeout(res,500))
+    await new Promise(res=>setTimeout(res,1000))
     const newMessage={id:crypto.randomUUID(),text}
     messages=[...messages,newMessage]
     revalidatePath("/")
