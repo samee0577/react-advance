@@ -1,6 +1,6 @@
 "use client"
 import addMessage, { Message } from "./lib/db"
-import { use, useActionState , useOptimistic } from "react"
+import { use, useActionState, useOptimistic } from "react"
 
 export default function MessageForm({ messagePromise }: { messagePromise: Promise<Message[]> }) {
     const messages = use(messagePromise)
@@ -19,9 +19,11 @@ export default function MessageForm({ messagePromise }: { messagePromise: Promis
             return null;
         }
         setOptimisticMessages(text)
-        await addMessage(text).then((text) => {
-            console.log("new message added:", text)
-        });
+        try {
+            await addMessage(text)
+        } catch (error) {
+            console.log("server failed, useOptimistic will revert automatically")
+        }
         return null
     }
 
