@@ -9,7 +9,7 @@ const inputStyle = {
     borderRadius: 8,
 };
 
-type NewProjectDraft = {
+export type NewProjectDraft = {
     name: string;
     domain: string;
     summary: string;
@@ -19,7 +19,7 @@ type NewProjectDraft = {
 
 // Fixed Validation: Now returns a clear boolean indicating if it is valid
 // 1. THE VALIDATION FUNCTION (Returns true if clean, false if errors found)
-function validateProject(draft: NewProjectDraft): boolean {
+export function validateProject(draft: NewProjectDraft): boolean {
     // Check core project fields first
     if (draft.name.trim() === "") {
         toast.error("Project name is required");
