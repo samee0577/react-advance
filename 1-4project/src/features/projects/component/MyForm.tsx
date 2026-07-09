@@ -96,7 +96,7 @@ export default function MyForm() {
 
         try {
             dispatch({
-                type: "ADD_PROJECT", 
+                type: "ADD_PROJECT",
                 payload: {
                     id: crypto.randomUUID(),
                     name: newProject.name,

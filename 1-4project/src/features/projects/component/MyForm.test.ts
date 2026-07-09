@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateProject } from './MyForm';
 import type { NewProjectDraft } from './MyForm';
 
-describe('MyForm Component', () => {
+describe('MyForm Component unit testing', () => {
     it("returns true when a name is empty", () => {
         const Draft: NewProjectDraft = {
             name: "",
