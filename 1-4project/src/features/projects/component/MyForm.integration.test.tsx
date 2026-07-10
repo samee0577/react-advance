@@ -6,24 +6,11 @@ import userEvent from "@testing-library/user-event";
 
 describe("myForm integration testing", () => {
 
-  it("returns all  the field in the form", () => {
-
-    const mockDispacth = vi.fn();
-
-    render(
-      <ProjectsContext.Provider value={{ state: { projects: [] }, dispatch: mockDispacth }}>
-        <MyForm />
-      </ProjectsContext.Provider>
-    );
-
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Summary")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Domain")).toBeInTheDocument();
-  })
-
   it('type into the name field', async () => {
+    
     const mockDispacth = vi.fn();
     const user = userEvent.setup();
+    
     render(
       <ProjectsContext.Provider value={{ state: { projects: [] }, dispatch: mockDispacth }}>
         <MyForm />
@@ -43,26 +30,37 @@ describe("myForm integration testing", () => {
     await user.type(techStackInput, "React");
 
     const featureTitleInput = screen.getByPlaceholderText("Feature Title");
-    await user.type(featureTitleInput, "Login");
+    await user.type(featureTitleInput, "feature1");
 
     const taskInput = screen.getByPlaceholderText("Enter task");
     await user.type(taskInput, "Build form");
 
     const submitButton = screen.getByRole("button", { name: "Create Project" });
     await user.click(submitButton);
-    
-    console.log("mockDispacth", mockDispacth.mock.calls);
-    
+        
     expect(mockDispacth).toHaveBeenCalledWith({
       type: "ADD_PROJECT",
       payload: {
         id: expect.any(String),
-        name: expect.any(String),
-        summary: expect.any(String),
-        domain: expect.any(String),
-        completion: expect.any(Number),
+        name: "hello world",
+        summary: "This is summary",
+        domain: "example.com",
+        completion: 0,
         techStack: ["React"],
-        features: expect.any(Array),
+        features: [
+          {
+            id: expect.any(String),
+            title: "feature1",
+            status: false,
+            tasks: [
+              {
+                id: expect.any(String),
+                title: "Build form",
+                status: false
+              }
+            ]
+          }
+        ],
       }
     })
 
