@@ -1,0 +1,23 @@
+import { describe, it, expect } from "vitest"
+import { Counter } from "./Counter"
+import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+
+describe("Counter", () => {
+
+    it("should render counter with initial count 0", () => {
+        render(<Counter />)
+        expect(screen.getByText("count: 0")).toBeInTheDocument();
+    });
+
+    it("should increment count when button is clicked", async () => {
+        const user = userEvent.setup()
+        render(<Counter />)
+        
+        const Increment = screen.getByRole("button", { name: "Increment" });
+        await user.click(Increment);
+
+        expect(screen.getByText("count: 3")).toBeInTheDocument();
+    })
+
+});
