@@ -80,8 +80,8 @@ export default function ProjectsList() {
             
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
                 {projects.map((project) => (
-                    <ProjectCard 
-                        key={project.id} 
+                    <ProjectCard
+                        key={project.id}
                         project={project}
                     />
                 ))}
