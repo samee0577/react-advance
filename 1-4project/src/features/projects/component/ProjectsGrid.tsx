@@ -13,7 +13,7 @@ export default function ProjectsList() {
             queryFn: ()=> fetch("http://localhost:3001/api/projects").then(res=>res.json())
         }
     )
-    console.log("from server: ",data)
+    console.log("2nd log: ",data)
 
     const context = use(ProjectsContext);
     

@@ -7,17 +7,19 @@ app.use(cors());
 app.use(express.json());
 
 const port = 3001;
+const projects = [
+    { id: 1, name: "Project 1" },
+    { id: 2, title: "hello world" },
+];
 
 app.get("/api/projects", (req, res) => {
-    res.json([
-        { id: 1, name : "Project 1" , completion: 0},
-        { id: 2, title: "hello world" , completion: 10},
-    ]);
+    res.json(projects);
 })
 
 app.post("/api/projects", (req, res) => {
-    console.log(req.body);
-    res.json({message:"success"});
+    const newProjects = {id : projects.length +1 , ...req.body};
+    projects.push(newProjects);
+    res.json(newProjects);
 })
 
 app.listen(port, ()=>{

@@ -94,7 +94,6 @@ function reducerFunction(state: { projects: projectType[] }, action: action) {
                                 }
                                 return feature;
                             });
-                        console.log(changedFeature)
                         return {
                             ...project,
                             features: changedFeature,
