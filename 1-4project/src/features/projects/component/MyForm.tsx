@@ -1,6 +1,7 @@
 import { use, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { ProjectsContext } from "../context/projectContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const inputStyle = {
     padding: "8px",
@@ -17,8 +18,6 @@ export type NewProjectDraft = {
     features: { title: string; tasks: string[] }[];
 };
 
-// Fixed Validation: Now returns a clear boolean indicating if it is valid
-// 1. THE VALIDATION FUNCTION (Returns true if clean, false if errors found)
 export function validateProject(draft: NewProjectDraft): boolean {
     // Check core project fields first
     if (draft.name.trim() === "") {
@@ -50,7 +49,7 @@ export function validateProject(draft: NewProjectDraft): boolean {
     // Validate deep nested elements (Features & Tasks)
     for (let i = 0; i < draft.features.length; i++) {
         const feature = draft.features[i];
-        
+
         if (feature.title.trim() === "") {
             toast.error(`Feature block #${i + 1} is missing a title`);
             return false;
@@ -71,6 +70,22 @@ export default function MyForm() {
     if (!context) throw new Error("useProject must be used within a ProjectProvider");
     const { dispatch } = context;
 
+    const queryClient = useQueryClient();
+
+    const Mutation = useMutation({
+        mutationFn: (newProject: NewProjectDraft) =>
+            fetch("http://localhost:3001/api/projects", {
+                method: 'post',
+                headers: { "content-Type": "application/json" },
+                body: JSON.stringify(newProject)
+            }).then(res => res.json()),
+        onSuccess: (data) => {
+            console.log("successful data: ", data)
+            queryClient.invalidateQueries({ queryKey: ["projects"] })
+        }
+    })
+
+
     const [newProject, setNewProject] = useState<NewProjectDraft>({
         name: "",
         domain: "",
@@ -82,12 +97,12 @@ export default function MyForm() {
     function handleSubmit() {
         // Stop execution if form is invalid
         if (!validateProject(newProject)) return;
-    
+
         const formattedFeatures = newProject.features.map((f) => ({
             id: crypto.randomUUID(),
             title: f.title,
             status: false,
-            tasks: f.tasks.map((taskText)=>({
+            tasks: f.tasks.map((taskText) => ({
                 id: crypto.randomUUID(),
                 title: taskText,
                 status: false
@@ -107,7 +122,9 @@ export default function MyForm() {
                     features: formattedFeatures // Passing the cleanly mapped array
                 }
             });
-            
+
+            Mutation.mutate(newProject)
+
             // Optional: Reset form after successful creation
             setNewProject({
                 name: "",
@@ -215,7 +232,7 @@ export default function MyForm() {
                                 <button
                                     onClick={() => handleRemoveTech(index)}
                                     className="deleteButton"
-                                    style={{ position: "absolute", top: "50%", right: "5px", transform: "translateY(-50%)", border: "none", cursor: "pointer"}}
+                                    style={{ position: "absolute", top: "50%", right: "5px", transform: "translateY(-50%)", border: "none", cursor: "pointer" }}
                                 >
                                     &times;
                                 </button>
@@ -234,7 +251,7 @@ export default function MyForm() {
                                 <button
                                     onClick={() => handleRemoveFeature(index)}
                                     className="deleteButton"
-                                    style={{ position: "absolute", top: "5px", right: "5px",border: "none", cursor: "pointer"}}
+                                    style={{ position: "absolute", top: "5px", right: "5px", border: "none", cursor: "pointer" }}
                                 >
                                     &times;
                                 </button>
@@ -246,9 +263,9 @@ export default function MyForm() {
                                     placeholder="Feature Title"
                                     onChange={handleFeatureInput(index)}
                                 />
-                                <button type="button" onClick={() => addNewTask(index)} style={{ fontSize: "18px" ,borderRadius:"5px"}}>+</button>
+                                <button type="button" onClick={() => addNewTask(index)} style={{ fontSize: "18px", borderRadius: "5px" }}>+</button>
                             </div>
-                            
+
                             {feature.tasks.map((task, taskIndex) => (
                                 <div key={`task-${index}-${taskIndex}`} style={{ display: "flex", gap: "10px", position: "relative" }}>
                                     <input
@@ -262,7 +279,7 @@ export default function MyForm() {
                                         <button
                                             onClick={() => handleRemoveTask(index, taskIndex)}
                                             className="deleteButton"
-                                            style={{ position: "absolute", right: "5px", top: "50%", transform: "translateY(-50%)", border: "none", cursor: "pointer"}}
+                                            style={{ position: "absolute", right: "5px", top: "50%", transform: "translateY(-50%)", border: "none", cursor: "pointer" }}
                                         >
                                             &times;
                                         </button>
@@ -274,9 +291,9 @@ export default function MyForm() {
                     <button type="button" className="allButton" onClick={() => setNewProject(prev => ({ ...prev, features: [...prev.features, { title: "", tasks: [""] }] }))}>Add More Features</button>
                 </div>
             </div>
-            
+
             <ToastContainer position="bottom-left" autoClose={1000} />
-            <button onClick={handleSubmit} className="allButton" style={{marginBottom:"20px",padding:"10px"}}>Create Project</button>
+            <button onClick={handleSubmit} className="allButton" style={{ marginBottom: "20px", padding: "10px" }}>Create Project</button>
         </>
     );
 }
