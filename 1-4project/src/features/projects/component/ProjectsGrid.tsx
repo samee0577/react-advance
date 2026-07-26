@@ -2,19 +2,28 @@ import ProjectCard from "./projectCard";
 import { use } from "react";
 import { ProjectsContext } from "../context/projectContext";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 
 export default function ProjectsList() {
+
+    const {data , isLoading , error} =useQuery(
+        {
+            queryKey:["projects"],
+            queryFn: ()=> fetch("http://localhost:3001/api/projects").then(res=>res.json())
+        }
+    )
+    console.log("from server: ",data)
+
     const context = use(ProjectsContext);
     
-    // Clean, combined production check
     if (!context || !context.state) {
         throw new Error("ProjectsList must be used within a properly initialized ProjectProvider");
     }
 
     const { projects } = context.state;
 
-    const {dispatch}=context
+    // const {dispatch}=context
     // function demoProject(){
     //         dispatch({ type: "ADD_PROJECT", payload: {
     //     id: crypto.randomUUID(),

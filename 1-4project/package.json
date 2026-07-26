@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.4",
     "playwright": "^1.61.1",
     "react": "^19.2.6",
     "react-circular-progressbar": "^2.2.0",
