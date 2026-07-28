@@ -3,17 +3,18 @@ import { use } from "react";
 import { ProjectsContext } from "../context/projectContext";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import type { projectType } from "../types/project";
 
 
 export default function ProjectsList() {
 
-    const {data , isLoading , error} =useQuery(
+    const {data: projectData , isLoading , error} =useQuery(
         {
             queryKey:["projects"],
-            queryFn: ()=> fetch("http://localhost:3001/api/projects").then(res=>res.json())
+            queryFn: async()=> await fetch("http://localhost:3001/api/projects").then(res=>res.json())
         }
     )
-    console.log("log inside the projectgrid: ",data)
+    console.log("log inside the projectgrid: ",projectData)
 
     const context = use(ProjectsContext);
     
@@ -75,6 +76,9 @@ export default function ProjectsList() {
     // } })
     // }
     
+    // if(isLoading)return<div><h1>loading projects</h1></div>
+    if(error)return<div><h1>{error.message}</h1></div>
+
     return (
         <div>
             <h1>Projects</h1>
@@ -88,7 +92,7 @@ export default function ProjectsList() {
                 </button> */}
             
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
-                {projects.map((project) => (
+                {projectData?.map((project: projectType) => (
                     <ProjectCard
                         key={project.id}
                         project={project}

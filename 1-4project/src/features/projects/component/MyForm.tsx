@@ -11,7 +11,9 @@ const inputStyle = {
 };
 
 export type NewProjectDraft = {
+    id: string,
     name: string;
+    completion: 0;
     domain: string;
     summary: string;
     techStack: string[];
@@ -86,7 +88,9 @@ export default function MyForm() {
 
 
     const [newProject, setNewProject] = useState<NewProjectDraft>({
+        id: crypto.randomUUID(),
         name: "",
+        completion:0,
         domain: "",
         summary: "",
         techStack: [""],
@@ -112,11 +116,11 @@ export default function MyForm() {
             dispatch({
                 type: "ADD_PROJECT",
                 payload: {
-                    id: crypto.randomUUID(),
+                    id: newProject.id,
                     name: newProject.name,
                     summary: newProject.summary,
                     domain: newProject.domain,
-                    completion: 0,
+                    completion: newProject.completion,
                     techStack: newProject.techStack.filter(t => t.trim() !== ""), // filter out empty values
                     features: formattedFeatures // Passing the cleanly mapped array
                 }
@@ -126,6 +130,8 @@ export default function MyForm() {
 
             // Optional: Reset form after successful creation
             setNewProject({
+                id: '',
+                completion:0,
                 name: "",
                 domain: "",
                 summary: "",
