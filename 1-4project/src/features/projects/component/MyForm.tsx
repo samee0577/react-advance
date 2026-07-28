@@ -79,8 +79,7 @@ export default function MyForm() {
                 headers: { "content-Type": "application/json" },
                 body: JSON.stringify(newProject)
             }).then(res => res.json()),
-        onSuccess: (data) => {
-            console.log("successful data: ", data)
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["projects"] })
         }
     })
