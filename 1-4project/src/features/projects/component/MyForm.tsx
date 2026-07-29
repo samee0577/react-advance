@@ -69,26 +69,62 @@ export function validateProject(draft: NewProjectDraft): boolean {
 export default function MyForm() {
     const context = use(ProjectsContext);
     if (!context) throw new Error("useProject must be used within a ProjectProvider");
-    const { dispatch } = context;
+    // const { dispatch } = context;
 
     const queryClient = useQueryClient();
 
-    const Mutation = useMutation({
+    const { mutate, isPending } = useMutation({
         mutationFn: (newProject: NewProjectDraft) =>
             fetch("http://localhost:3001/api/projects", {
                 method: 'post',
                 headers: { "content-Type": "application/json" },
                 body: JSON.stringify(newProject)
-            }).then(res => res.json()),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["projects"] })
-        }
-    })
-
+            }).then(res => {
+                if (!res.ok) {
+                    throw new Error(`API error: ${res.status}`);
+                }
+                return res.json();
+            }),
+        onMutate: () => {
+            const id = toast.loading("Creating project...");
+            return { toastId: id };
+        },
+        onSuccess: (_data, _variables, context) => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            toast.update(context.toastId, {
+                render: "Project created successfully!",
+                type: "success",
+                isLoading: false,
+                autoClose: 1000,
+                closeOnClick: true,
+            });
+            setNewProject({
+                completion: 0,
+                name: "",
+                domain: "",
+                summary: "",
+                techStack: [""],
+                features: [{ title: "", tasks: [""] }]
+            });
+        },
+        onError: (_error, _variables, context) => {
+            if (context?.toastId) {
+                toast.update(context.toastId, {
+                    render: "Failed to save project.",
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 5000,
+                    closeOnClick: true,
+                });
+            } else {
+                toast.error("Failed to save project.");
+            }
+        },
+    });
 
     const [newProject, setNewProject] = useState<NewProjectDraft>({
         name: "",
-        completion:0,
+        completion: 0,
         domain: "",
         summary: "",
         techStack: [""],
@@ -99,35 +135,8 @@ export default function MyForm() {
 
         if (!validateProject(newProject)) return;
 
-        try {
-            // dispatch({
-            //     type: "ADD_PROJECT",
-            //     payload: {
-            //         id: newProject.id,
-            //         name: newProject.name,
-            //         summary: newProject.summary,
-            //         domain: newProject.domain,
-            //         completion: newProject.completion,
-            //         techStack: newProject.techStack.filter(t => t.trim() !== ""), // filter out empty values
-            //         features: formattedFeatures // Passing the cleanly mapped array
-            //     }
-            // });
-            console.log(newProject)
-            Mutation.mutate(newProject)
-
-            // Optional: Reset form after successful creation
-            setNewProject({
-                completion:0,
-                name: "",
-                domain: "",
-                summary: "",
-                techStack: [""],
-                features: [{ title: "", tasks: [""] }]
-            });
-            toast.success("Project created successfully!");
-        } catch (error) {
-            toast.error("Failed to save project.");
-        }
+        console.log(newProject);
+        mutate(newProject);
     }
 
     function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -284,7 +293,14 @@ export default function MyForm() {
             </div>
 
             <ToastContainer position="bottom-left" autoClose={1000} />
-            <button onClick={handleSubmit} className="allButton" style={{ marginBottom: "20px", padding: "10px" }}>Create Project</button>
+            <button
+                onClick={handleSubmit}
+                className="allButton"
+                style={{ marginBottom: "20px", padding: "10px" }}
+                disabled={isPending}
+            >
+                {isPending ? "Creating project..." : "Create Project"}
+            </button>
         </>
     );
 }
