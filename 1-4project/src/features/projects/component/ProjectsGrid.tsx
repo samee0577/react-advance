@@ -8,21 +8,21 @@ import type { projectType } from "../types/project";
 
 export default function ProjectsList() {
 
-    const {data: projectData , isLoading , error} =useQuery(
+    const { data: projectData, isLoading, error } = useQuery(
         {
-            queryKey:["projects"],
-            queryFn: async()=> await fetch("http://localhost:3001/api/projects").then(res=>res.json())
+            queryKey: ["projects"],
+            queryFn: async () => await fetch("http://localhost:3001/api/projects").then(res => res.json())
         }
     )
-    console.log("log inside the projectgrid: ",projectData)
+    console.log("log inside the projectgrid: ", projectData)
 
     const context = use(ProjectsContext);
-    
+
     if (!context || !context.state) {
         throw new Error("ProjectsList must be used within a properly initialized ProjectProvider");
     }
 
-    const { projects } = context.state;
+    // const { projects } = context.state;
 
     // const {dispatch}=context
     // function demoProject(){
@@ -75,9 +75,9 @@ export default function ProjectsList() {
     //     }]
     // } })
     // }
-    
-    // if(isLoading)return<div><h1>loading projects</h1></div>
-    if(error)return<div><h1>{error.message}</h1></div>
+
+    // if (isLoading) return <div><h1>loading projects</h1></div>
+    if (error) return <div><h1>{error.message}</h1></div>
 
     return (
         <div>
@@ -87,18 +87,21 @@ export default function ProjectsList() {
                     Add New Project
                 </button>
             </Link>
-                {/* <button onClick={demoProject} style={{ padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10, cursor: "pointer" , backgroundColor:"red"}}>
+            {/* <button onClick={demoProject} style={{ padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10, cursor: "pointer" , backgroundColor:"red"}}>
                     demo project [temp button]
                 </button> */}
-            
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
-                {projectData?.map((project: projectType) => (
-                    <ProjectCard
-                        key={project.id}
-                        project={project}
-                    />
-                ))}
-            </div>
+
+            {isLoading ? <h1>loading projects</h1> :
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
+                    {projectData.map((project: projectType) => (
+                        <ProjectCard
+                            key={project.id}
+                            project={project}
+                        />
+                    ))}
+                </div>
+            }
         </div>
     );
 }

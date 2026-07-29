@@ -78,10 +78,49 @@ app.get("/api/db-health", async (req, res) => {
     }
 });
 
-// app.post("/api/projects", (req, res) => {
-//     projects.push(req.body);
-//     res.json(req.body);
-// })
+app.post("/api/projects", async (req, res) => {
+    let client;
+
+    try {
+        client = await pool.connect();
+        const { name, summary, domain, completion } = req.body;
+        const { features } = req.body;
+
+        await client.query("BEGIN")
+
+        const projectResult = await client.query(`INSERT INTO projects (name, summary, domain, completion) VALUES ($1, $2, $3, $4) returning id;`, [name, summary, domain, completion]);
+        const projectId = projectResult.rows[0].id;
+
+        for (const feature of features) {
+            const featureResult = await client.query(
+                `INSERT INTO features (title, status, project_id) VALUES ($1, $2, $3) RETURNING id;`,
+                [feature.title, false, projectId]
+            );
+
+            const featureId = featureResult.rows[0].id;
+
+            for (const task of feature.tasks) {
+                await client.query(
+                    `INSERT INTO tasks (title, status, feature_id) VALUES ($1, $2, $3);`,
+                    [task.title, false, featureId]
+                );
+            }
+        }
+        await client.query("COMMIT")
+
+        res.json({ message: "project added successfully", projectId });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.log(error.message)
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release()
+    }
+
+    // projects.push(req.body);
+    // res.json(req.body);
+});
 
 app.listen(port, () => {
     console.log("server is listening on port:", port)

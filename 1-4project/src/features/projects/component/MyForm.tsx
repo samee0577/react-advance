@@ -11,7 +11,6 @@ const inputStyle = {
 };
 
 export type NewProjectDraft = {
-    id: string,
     name: string;
     completion: 0;
     domain: string;
@@ -88,7 +87,6 @@ export default function MyForm() {
 
 
     const [newProject, setNewProject] = useState<NewProjectDraft>({
-        id: crypto.randomUUID(),
         name: "",
         completion:0,
         domain: "",
@@ -98,39 +96,27 @@ export default function MyForm() {
     });
 
     function handleSubmit() {
-        // Stop execution if form is invalid
+
         if (!validateProject(newProject)) return;
 
-        const formattedFeatures = newProject.features.map((f) => ({
-            id: crypto.randomUUID(),
-            title: f.title,
-            status: false,
-            tasks: f.tasks.map((taskText) => ({
-                id: crypto.randomUUID(),
-                title: taskText,
-                status: false
-            }))
-        }));
-
         try {
-            dispatch({
-                type: "ADD_PROJECT",
-                payload: {
-                    id: newProject.id,
-                    name: newProject.name,
-                    summary: newProject.summary,
-                    domain: newProject.domain,
-                    completion: newProject.completion,
-                    techStack: newProject.techStack.filter(t => t.trim() !== ""), // filter out empty values
-                    features: formattedFeatures // Passing the cleanly mapped array
-                }
-            });
-
+            // dispatch({
+            //     type: "ADD_PROJECT",
+            //     payload: {
+            //         id: newProject.id,
+            //         name: newProject.name,
+            //         summary: newProject.summary,
+            //         domain: newProject.domain,
+            //         completion: newProject.completion,
+            //         techStack: newProject.techStack.filter(t => t.trim() !== ""), // filter out empty values
+            //         features: formattedFeatures // Passing the cleanly mapped array
+            //     }
+            // });
+            console.log(newProject)
             Mutation.mutate(newProject)
 
             // Optional: Reset form after successful creation
             setNewProject({
-                id: '',
                 completion:0,
                 name: "",
                 domain: "",
