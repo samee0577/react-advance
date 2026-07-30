@@ -52,6 +52,42 @@ app.get("/api/projects", async (req, res) => {
     }
 });
 
+app.get("/api/projects/:projectId", async (req, res) => {
+    let client;
+
+    const { projectId } = req.params;
+
+    try {
+        client = await pool.connect();
+        const projectResult = await client.query("SELECT * FROM projects WHERE id=$1", [projectId]);
+        if(projectResult.rows.length === 0){
+            return res.status(404).json({ error: "Project not found" });
+        }
+        const featureResult = await client.query("SELECT * FROM features WHERE project_id=$1", [projectId]);
+        const techStackResult = await client.query("SELECT * FROM tech_stack WHERE project_id=$1", [projectId]);
+
+        const featuresWithTasks = await Promise.all(
+            featureResult.rows.map(async (feature) => {
+                const taskResult = await client.query("SELECT * FROM tasks WHERE feature_id=$1", [feature.id]);
+                return { ...feature, tasks: taskResult.rows };
+            })
+        );
+
+        res.json({
+            ...projectResult.rows[0],
+            features: featuresWithTasks,
+            techStack: techStackResult.rows
+        });
+    } catch (error) {
+        console.error("Error fetching project:", error);
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+});
+
 // db connection check 
 app.get("/api/db-health", async (req, res) => {
     let client;
@@ -83,13 +119,25 @@ app.post("/api/projects", async (req, res) => {
 
     try {
         client = await pool.connect();
-        const { name, summary, domain, completion } = req.body;
+        const { name, summary, domain, completion , techStack } = req.body;
         const { features } = req.body;
+        if(name.trim() === '') return res.status(400).json({ error: 'fill the project name input' });
+        if(summary.trim() === '') return res.status(400).json({ error: 'fill the project summary input' });
+        if(domain.trim() === '') return res.status(400).json({ error: 'fill the project domain input' });
+        if(techStack.length === 0) return res.status(400).json({ error: 'add at least one tech stack item' });
+        if(features.length === 0) return res.status(400).json({ error: 'add at least one feature block' });
 
         await client.query("BEGIN")
 
         const projectResult = await client.query(`INSERT INTO projects (name, summary, domain, completion) VALUES ($1, $2, $3, $4) returning id;`, [name, summary, domain, completion]);
         const projectId = projectResult.rows[0].id;
+
+        if(techStack.length>0){
+            await client.query(
+                "INSERT INTO tech_stack (name, project_id) SELECT unnest($1::text[]),$2;",
+                [techStack, projectId]
+            );
+        }
 
         for (const feature of features) {
             const featureResult = await client.query(
@@ -117,9 +165,6 @@ app.post("/api/projects", async (req, res) => {
     } finally {
         client.release()
     }
-
-    // projects.push(req.body);
-    // res.json(req.body);
 });
 
 app.listen(port, () => {

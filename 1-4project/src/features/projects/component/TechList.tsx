@@ -1,9 +1,15 @@
-export default function StackList({ techStack }: { techStack: string[] }) {
+interface StackListProps {
+    id: number;
+    name: string;
+    project_id: number;
+}
+
+export default function StackList({ techStack }: { techStack: StackListProps[] }) {
     return (
         <>
             <h2>Tech Stack:</h2>
             <div style={{display:"flex",flexDirection:"row",gap:"10px"}}>
-                {techStack.map((stack) => <li className="stackList" key={crypto.randomUUID()} >{stack}</li>)}
+                {techStack.map((stack) => <li className="stackList" key={stack.id} >{stack.name}</li>)}
             </div>
         </>
     );

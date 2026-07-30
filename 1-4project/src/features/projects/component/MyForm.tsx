@@ -135,7 +135,7 @@ export default function MyForm() {
 
         if (!validateProject(newProject)) return;
 
-        console.log(newProject);
+        console.log("project submitted: ",newProject);
         mutate(newProject);
     }
 

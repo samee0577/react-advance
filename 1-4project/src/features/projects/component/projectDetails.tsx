@@ -1,5 +1,5 @@
-import { ProjectsContext } from "../context/projectContext"
-import { use, useState } from "react"
+// import { ProjectsContext } from "../context/projectContext"
+import { useState } from "react"
 import { useParams } from "react-router-dom"
 import FeatureList from "./FeatureList"
 import StackList from "./TechList"
@@ -7,27 +7,46 @@ import { MyProgress } from "./ProgressBar"
 import { toast } from "react-toastify"
 import useDialog from "../hooks/useDialog"
 import type { projectType } from "../types/project"
+import {useQuery} from "@tanstack/react-query"
 
 export default function ProjectDetails() {
 
-    const context = use(ProjectsContext)
-    if (!context) throw new Error("useProject must be used within a ProjectProvider")
-    const { state, dispatch } = context
-
+    // const context = use(ProjectsContext)
+    // if (!context) throw new Error("useProject must be used within a ProjectProvider")
+    // const { state, dispatch } = context
     const { projectId } = useParams()
-    const ThisProject = state.projects.find((project) => project.id === projectId)
+
+    const { data: projectData, isLoading, error } = useQuery(
+        {
+            queryKey: ["projects", projectId],
+            queryFn: async () => await fetch(`http://localhost:3001/api/projects/${projectId}`).then(res => res.json())
+        }
+    )
 
     const [feature, setfeature] = useState<string>("")
     const [newTask, setNewTask] = useState<string[]>([""])
     const [editProject, setEditProject] = useState<projectType>({
-        id: ThisProject?.id || "",
-        name: ThisProject?.name || "",
-        summary: ThisProject?.summary || "",
-        domain: ThisProject?.domain || "",
-        techStack: ThisProject?.techStack || [],
-        completion: ThisProject?.completion || 0,
-        features: ThisProject?.features || [],
+        id: projectData?.id || "",
+        name: projectData?.name || "",
+        summary: projectData?.summary || "",
+        domain: projectData?.domain || "",
+        techStack: projectData?.techStack || [],
+        completion: projectData?.completion || 0,
+        features: projectData?.features || [],
     });
+
+    const { dialogRef, openDialog, closeDialog } = useDialog();
+    const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
+
+    if(isLoading){return <div>Loading details please wait...</div>}
+    if(error){return <div>{error.message}</div>}
+    if(!projectData){return <div>No project detail found!</div>}
+    
+    const ThisProject = projectData
+    console.log("recieved details: ",projectData)
+
+    console.log("techstack:",ThisProject.techStack)
+    console.log("completion:",ThisProject.completion)
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 
@@ -49,24 +68,8 @@ export default function ProjectDetails() {
         if (ThisProject === undefined) return
         if (featureName.trim() === '') return
 
-        const formattedTasks = newTask
-            .filter((task) => task.trim() !== '')
-            .map((task) => ({
-                id: crypto.randomUUID(),
-                title: task,
-                status: false
-            }));
-
+        // const formattedTasks = newTask.map((task) => task.trim()).filter((task) => task !== '')
         try {
-            dispatch({
-                type: "ADD_FEATURE",
-                payload: {
-                    projectId: ThisProject.id,
-                    tasks: formattedTasks,
-                    feature: featureName
-                }
-            })
-            dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProject.id } })
             setfeature("")
             setNewTask([""])
             toast.success("feature added successfully")
@@ -87,16 +90,16 @@ export default function ProjectDetails() {
         })
 
         try {
-            dispatch({
-                type: "EDIT_PROJECT",
-                payload: {
-                    projectId: ThisProject.id,
-                    newName: editProject?.name || "",
-                    newSummary: editProject?.summary || "",
-                    newDomain: editProject?.domain || "",
-                    newTechStack: nonEmptyTechStack || []
-                }
-            })
+            // dispatch({
+            //     type: "EDIT_PROJECT",
+            //     payload: {
+            //         projectId: ThisProject.id,
+            //         newName: editProject?.name || "",
+            //         newSummary: editProject?.summary || "",
+            //         newDomain: editProject?.domain || "",
+            //         newTechStack: nonEmptyTechStack || []
+            //     }
+            // })
             closeEditDialog()
             // toast.success("Project edited successfully")
         } catch (error) {
@@ -108,13 +111,11 @@ export default function ProjectDetails() {
         setEditProject({ ...editProject, techStack: [...editProject.techStack, ""] })
     }
 
-    const { dialogRef, openDialog, closeDialog } = useDialog();
-    const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
-
+    
     return (
         <>
             {
-                ThisProject ? (
+                projectData ? (
                     <div className="project-grid-container">
                         <div style={{ borderRight: "1px solid #999", paddingRight: "20px", marginRight: "10px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -244,7 +245,7 @@ export default function ProjectDetails() {
                     </div >
                 ) :
                     <h2>
-                        Theres no project detail !
+                        Theres no detail of this project !
                     </h2>
             }
         </>
