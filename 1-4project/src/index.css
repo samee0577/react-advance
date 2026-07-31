@@ -316,3 +316,18 @@ dialog.popup[open] {
 .popup-feature-input:focus {
   border-bottom: 1px dashed #a0a0a0; 
 }
+
+.skeleton-badge {
+  display: inline-block;
+  width: 28px;
+  height: 18px;
+  background-color: #333; /* match your dark/light theme */
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
