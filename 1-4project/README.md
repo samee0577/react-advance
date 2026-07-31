@@ -255,3 +255,14 @@ jobs:
 - Pushing to GitHub always succeeds regardless of test results — CI does not block pushes
 - CI blocks **merging** a Pull Request, only if branch protection rules are configured to require passing checks
 - Check status: repo → **Actions** tab, or the ✅/❌ icon next to a commit/PR
+
+edit dailog: 
+	techstack fix, 
+	edit doesnt work (api), 
+	empty stale insead of entered text
+feature: 
+	task not showing 
+	cant toggle task
+	cant add new feaature(api)
+project:
+	cant delete project(api)
