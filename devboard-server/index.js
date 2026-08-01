@@ -199,7 +199,7 @@ app.post("/api/projects", async (req, res) => {
             for (const task of feature.tasks) {
                 await client.query(
                     `INSERT INTO tasks (title, status, feature_id) VALUES ($1, $2, $3);`,
-                    [task.title, false, featureId]
+                    [task, false, featureId]
                 );
             }
         }

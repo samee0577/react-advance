@@ -11,7 +11,7 @@ export type action =
     { type: "ADD_NEW_TASK", payload: { projectId: string, featureId: string, task: string } }
 
 export interface projectType {
-    id: string,
+    id: number,
     name: string,
     summary: string,
     techStack: {id: number, name: string, project_id: number}[],
@@ -21,14 +21,14 @@ export interface projectType {
 }
 
 export type feature = {
-    id: string,
+    id: number,
     title: string
     status: boolean
     tasks: task[]
 }
 
 export type task = {
-    id: string,
+    id: number,
     title: string
     status: boolean
 }
