@@ -23,9 +23,61 @@ export default function ProjectsList() {
     }, [])
 
 
+    const [isOffline, setIsOffline] = useState<boolean>(() => !navigator.onLine)
+
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false)
+        const handleOffline = () => setIsOffline(true)
+
+        window.addEventListener("online", handleOnline)
+        window.addEventListener("offline", handleOffline)
+
+        return () => {
+            window.removeEventListener("online", handleOnline)
+            window.removeEventListener("offline", handleOffline)
+        }
+    }, [])
+
+
     const { data: projectData, isLoading, error } = useQuery(
         {
             queryKey: ["projects"],
+            queryFn: async () => {
+                if (!navigator.onLine) {
+                    throw new Error("NETWORK_OFFLINE")
+                }
+                const res = await fetch("http://localhost:3001/api/projects").then(res => res.json())  
+                return res.json() 
+            }
+        }
+    )
+    
+    const hasNetworkError = isOffline ||
+        (error instanceof Error && (
+            error.message === "NETWORK_OFFLINE" ||
+            error.message.includes("Failed to fetch") ||
+            error.message.includes("NetworkError")
+        ))
+
+    if (hasNetworkError) {
+        return (
+            <div style={{
+                minHeight: "60vh",
+                display: "grid",
+                placeItems: "center",
+                textAlign: "center",
+                padding: "24px"
+            }}>
+                <div>
+                    <h2>No network connection</h2>
+                    <p>Please check your internet connection and try again.</p>
+                    <button className="allButton" onClick={() => window.location.reload()}>
+                        Retry
+                    </button>
+                </div>
+            </div>
+        )
+    }
             queryFn: async () => {
                 if (!navigator.onLine) {
                     throw new Error("NETWORK_OFFLINE")
