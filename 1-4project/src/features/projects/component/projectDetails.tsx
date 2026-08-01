@@ -1,5 +1,5 @@
 // import { ProjectsContext } from "../context/projectContext"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import FeatureList from "./FeatureList"
 import StackList from "./TechList"
@@ -11,11 +11,37 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 export default function ProjectDetails() {
 
     const { projectId } = useParams()
+    const [isOffline, setIsOffline] = useState<boolean>(() => !navigator.onLine)
+
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false)
+        const handleOffline = () => setIsOffline(true)
+
+        window.addEventListener("online", handleOnline)
+        window.addEventListener("offline", handleOffline)
+
+        return () => {
+            window.removeEventListener("online", handleOnline)
+            window.removeEventListener("offline", handleOffline)
+        }
+    }, [])
 
     const { data: projectData, isLoading, error } = useQuery(
         {
             queryKey: ["projects", projectId],
-            queryFn: async () => await fetch(`http://localhost:3001/api/projects/${projectId}`).then(res => res.json())
+            queryFn: async () => {
+                if (!navigator.onLine) {
+                    throw new Error("NETWORK_OFFLINE")
+                }
+
+                const res = await fetch(`http://localhost:3001/api/projects/${projectId}`)
+
+                if (!res.ok) {
+                    throw new Error(`Request failed with status ${res.status}`)
+                }
+
+                return res.json()
+            }
         }
     )
 
@@ -91,6 +117,33 @@ export default function ProjectDetails() {
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
     const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
+
+    const hasNetworkError = isOffline ||
+        (error instanceof Error && (
+            error.message === "NETWORK_OFFLINE" ||
+            error.message.includes("Failed to fetch") ||
+            error.message.includes("NetworkError")
+        ))
+
+    if (hasNetworkError) {
+        return (
+            <div style={{
+                minHeight: "60vh",
+                display: "grid",
+                placeItems: "center",
+                textAlign: "center",
+                padding: "24px"
+            }}>
+                <div>
+                    <h2>No network connection</h2>
+                    <p>Please check your internet connection and try again.</p>
+                    <button className="allButton" onClick={() => window.location.reload()}>
+                        Retry
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     if (isLoading) { return <div>Loading details please wait...</div> }
     if (error) { return <div>{error.message}</div> }

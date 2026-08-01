@@ -1,6 +1,5 @@
 import ProjectCard from "./projectCard";
-import { use } from "react";
-import { ProjectsContext } from "../context/projectContext";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { projectType } from "../types/project";
@@ -8,75 +7,61 @@ import type { projectType } from "../types/project";
 
 export default function ProjectsList() {
 
+    const [isOffline, setIsOffline] = useState<boolean>(() => !navigator.onLine)
+
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false)
+        const handleOffline = () => setIsOffline(true)
+
+        window.addEventListener("online", handleOnline)
+        window.addEventListener("offline", handleOffline)
+
+        return () => {
+            window.removeEventListener("online", handleOnline)
+            window.removeEventListener("offline", handleOffline)
+        }
+    }, [])
+
+
     const { data: projectData, isLoading, error } = useQuery(
         {
             queryKey: ["projects"],
-            queryFn: async () => await fetch("http://localhost:3001/api/projects").then(res => res.json())
+            queryFn: async () => {
+                if (!navigator.onLine) {
+                    throw new Error("NETWORK_OFFLINE")
+                }
+                const res = await fetch("http://localhost:3001/api/projects").then(res => res.json())  
+                return res.json() 
+            }
         }
     )
-    console.log("log inside the projectgrid: ", projectData)
+    
+    const hasNetworkError = isOffline ||
+        (error instanceof Error && (
+            error.message === "NETWORK_OFFLINE" ||
+            error.message.includes("Failed to fetch") ||
+            error.message.includes("NetworkError")
+        ))
 
-    const context = use(ProjectsContext);
-
-    if (!context || !context.state) {
-        throw new Error("ProjectsList must be used within a properly initialized ProjectProvider");
+    if (hasNetworkError) {
+        return (
+            <div style={{
+                minHeight: "60vh",
+                display: "grid",
+                placeItems: "center",
+                textAlign: "center",
+                padding: "24px"
+            }}>
+                <div>
+                    <h2>No network connection</h2>
+                    <p>Please check your internet connection and try again.</p>
+                    <button className="allButton" onClick={() => window.location.reload()}>
+                        Retry
+                    </button>
+                </div>
+            </div>
+        )
     }
-
-    // const { projects } = context.state;
-
-    // const {dispatch}=context
-    // function demoProject(){
-    //         dispatch({ type: "ADD_PROJECT", payload: {
-    //     id: crypto.randomUUID(),
-    //     name: "abc",
-    //     summary: "abc",
-    //     domain: "abc",
-    //     techStack: ["abc", "def"],
-    //     completion: 0,
-    //     features: [{
-    //         id:crypto.randomUUID(),
-    //         title: "abc",
-    //         status: false,
-    //         tasks: [{
-    //             id:crypto.randomUUID(),
-    //             title: "abc",
-    //             status: false
-    //         },
-    //         {
-    //             id:crypto.randomUUID(),
-    //             title: "def",
-    //             status: false
-    //         },
-    //         {
-    //             id:crypto.randomUUID(),
-    //             title: "ghi",
-    //             status: false
-    //         }]
-    //     },
-    //     {
-    //         id:crypto.randomUUID(),
-    //         title: "generational lockin",
-    //         status: false,
-    //         tasks: [{
-    //             id:crypto.randomUUID(),
-    //             title: "activating lockin mode",
-    //             status: false
-    //         },
-    //         {
-    //             id:crypto.randomUUID(),
-    //             title: "def",
-    //             status: false
-    //         },
-    //         {
-    //             id:crypto.randomUUID(),
-    //             title: "ghi",
-    //             status: false
-    //         }]
-    //     }]
-    // } })
-    // }
-
-    // if (isLoading) return <div><h1>loading projects</h1></div>
     if (error) return <div><h1>{error.message}</h1></div>
 
     return (
