@@ -6,14 +6,10 @@ import StackList from "./TechList"
 import { MyProgress } from "./ProgressBar"
 import { toast } from "react-toastify"
 import useDialog from "../hooks/useDialog"
-import type { projectType } from "../types/project"
-import {useQuery} from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 export default function ProjectDetails() {
 
-    // const context = use(ProjectsContext)
-    // if (!context) throw new Error("useProject must be used within a ProjectProvider")
-    // const { state, dispatch } = context
     const { projectId } = useParams()
 
     const { data: projectData, isLoading, error } = useQuery(
@@ -23,30 +19,97 @@ export default function ProjectDetails() {
         }
     )
 
+    const queryClient = useQueryClient()
+
+    const { mutate, isPending } = useMutation({
+
+        mutationFn: async (editProjectData: { projectId: number, name: string, summary: string, domain: string, techStack: string[] }) => {
+            const res = await fetch("http://localhost:3001/api/projects", {
+                method: 'put',
+                headers: { "content-Type": "application/json" },
+                body: JSON.stringify(editProjectData)
+            }).then(res => {
+                if (!res.ok) {
+                    throw new Error(`API error: ${res.status}`);
+                }
+                return res.json();
+            })
+            return res
+        },
+        onMutate: () => {
+            const id = toast.loading("Updating project...");
+            return { toastId: id };
+        },
+        onSuccess: (_data, _variables, context) => {
+
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+
+            toast.update(context.toastId, {
+                render: "Project updated successfully!",
+                type: "success",
+                isLoading: false,
+                autoClose: 1000,
+                closeOnClick: true,
+            });
+
+            closeEditDialog()
+        },
+        onError: (_error, _variables, context) => {
+            if (context?.toastId) {
+                toast.update(context.toastId, {
+                    render: "Failed to save project.",
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 5000,
+                    closeOnClick: true,
+                });
+            } else {
+                toast.error("Failed to save project.");
+            }
+        }
+    })
+
+
+    interface editProjectType{
+        name: string,
+        summary: string,
+        domain: string,
+        techStack: string[],
+        completion: number,
+        features: string[]
+    }
     const [feature, setfeature] = useState<string>("")
     const [newTask, setNewTask] = useState<string[]>([""])
-    const [editProject, setEditProject] = useState<projectType>({
-        id: projectData?.id || "",
-        name: projectData?.name || "",
-        summary: projectData?.summary || "",
-        domain: projectData?.domain || "",
-        techStack: projectData?.techStack || [],
-        completion: projectData?.completion || 0,
-        features: projectData?.features || [],
+    const [editProject, setEditProject] = useState<editProjectType>({
+        name: "",
+        summary: "",
+        domain: "",
+        techStack: [],
+        completion: 0,
+        features: [],
     });
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
     const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
 
-    if(isLoading){return <div>Loading details please wait...</div>}
-    if(error){return <div>{error.message}</div>}
-    if(!projectData){return <div>No project detail found!</div>}
-    
-    const ThisProject = projectData
-    console.log("recieved details: ",projectData)
+    if (isLoading) { return <div>Loading details please wait...</div> }
+    if (error) { return <div>{error.message}</div> }
+    if (!projectData) { return <div>No project detail found!</div> }
 
-    console.log("techstack:",ThisProject.techStack)
-    console.log("completion:",ThisProject.completion)
+    const ThisProject = projectData
+
+    function handleOpenEdit() {
+
+        setEditProject({
+            name: ThisProject.name,
+            summary: ThisProject.summary,
+            domain: ThisProject.domain,
+            techStack: ThisProject.techStack.map((s:{name:string})=>{return s.name}),
+            completion: ThisProject.completion,
+            features: ThisProject.features,
+        })
+        openEditDialog()
+    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 
@@ -82,172 +145,157 @@ export default function ProjectDetails() {
     function handleEdit() {
         if (ThisProject === undefined) return
 
-        const nonEmptyTechStack = editProject.techStack.map((stack) => {
-            if (stack.trim() === "") {
-                setEditProject({ ...editProject, techStack: editProject.techStack.filter((s) => s !== "") });
-            }
-            return stack
-        })
+        const nonEmptyTechStack = editProject.techStack.map(stack => stack.trim()).filter(name => name !== '')
 
-        try {
-            // dispatch({
-            //     type: "EDIT_PROJECT",
-            //     payload: {
-            //         projectId: ThisProject.id,
-            //         newName: editProject?.name || "",
-            //         newSummary: editProject?.summary || "",
-            //         newDomain: editProject?.domain || "",
-            //         newTechStack: nonEmptyTechStack || []
-            //     }
-            // })
-            closeEditDialog()
-            // toast.success("Project edited successfully")
-        } catch (error) {
-            toast.error("Error editing project");
-        }
+        setEditProject(prev => ({
+            ...prev,
+            techStack: nonEmptyTechStack
+        }));
+
+        mutate({
+            projectId: ThisProject.id,
+            name: editProject?.name,
+            summary: editProject?.summary,
+            domain: editProject?.domain,
+            techStack:  nonEmptyTechStack
+        })
     }
 
     function newStack() {
         setEditProject({ ...editProject, techStack: [...editProject.techStack, ""] })
     }
 
-    
+
     return (
         <>
-            {
-                projectData ? (
-                    <div className="project-grid-container">
-                        <div style={{ borderRight: "1px solid #999", paddingRight: "20px", marginRight: "10px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <div style={{ display: "flex", flexDirection: "row", gap: "20px" }}>
-                                    <h1 style={{ width: "auto" }}>{ThisProject.name}</h1>
-                                    <button className="edit" onClick={openEditDialog}>Edit</button>
-                                    <dialog ref={editDialogRef} className="popup" onClose={closeEditDialog} >
-                                        <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleEdit() }}>
-                                            <h2>Edit Project</h2>
+            <div className="project-grid-container">
+                <div style={{ borderRight: "1px solid #999", paddingRight: "20px", marginRight: "10px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "20px" }}>
+                            <h1 style={{ width: "auto" }}>{ThisProject.name}</h1>
+                            <button className="edit" onClick={handleOpenEdit}>Edit</button>
 
-                                            <label className="popup-label">Name</label>
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={editProject?.name}
-                                                className="popup-input"
-                                                placeholder="Enter Project Name"
-                                                onChange={handleInputChange}
-                                            />
+                            <dialog ref={editDialogRef} className="popup" onClose={closeEditDialog} >
+                                <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleEdit() }}>
+                                    <h2>Edit Project</h2>
 
-                                            <label className="popup-label">Domain</label>
-                                            <input
-                                                type="text"
-                                                name="domain"
-                                                value={editProject?.domain}
-                                                className="popup-input"
-                                                placeholder="Enter Project Domain"
-                                                onChange={handleInputChange}
-                                            />
+                                    <label className="popup-label">Name</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={editProject.name}
+                                        className="popup-input"
+                                        placeholder="Enter Project Name"
+                                        onChange={handleInputChange}
+                                    />
 
-                                            <label className="popup-label">Summary</label>
-                                            <textarea
-                                                name="summary"
-                                                value={editProject?.summary}
-                                                className="popup-input"
-                                                style={{ minHeight: "100px" }}
-                                                placeholder="Enter Project Summary"
-                                                onChange={handleInputChange}
-                                            />
+                                    <label className="popup-label">Domain</label>
+                                    <input
+                                        type="text"
+                                        name="domain"
+                                        value={editProject.domain}
+                                        className="popup-input"
+                                        placeholder="Enter Project Domain"
+                                        onChange={handleInputChange}
+                                    />
 
-                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "5px", marginRight: "10px" }}>
-                                                <label className="popup-label">Tech Stack</label>
-                                                <button type="button" onClick={newStack}>+</button>
-                                            </div>
+                                    <label className="popup-label">Summary</label>
+                                    <textarea
+                                        name="summary"
+                                        value={editProject.summary}
+                                        className="popup-input"
+                                        style={{ minHeight: "100px" }}
+                                        placeholder="Enter Project Summary"
+                                        onChange={handleInputChange}
+                                    />
 
-                                            {editProject.techStack.map((stack, index) => {
-                                                return (
-                                                    <input
-                                                        className="popup-input"
-                                                        key={index}
-                                                        type="text"
-                                                        value={stack}
-                                                        placeholder="Enter Tech Stack"
-                                                        onChange={handleTechStackChange(index)}
-                                                    />
-                                                )
-                                            })}
-
-                                            <div className="popup-actions" style={{ marginTop: "20px" }}>
-                                                <button className="popup-btn-primary" type="submit" onClick={() => handleEdit()}>Save</button>
-                                                <button className="popup-btn-secondary" type="button" onClick={closeEditDialog}>Cancel</button>
-                                            </div>
-                                        </form>
-                                    </dialog>
-                                </div>
-                                <MyProgress completion={ThisProject.completion} />
-                            </div>
-                            <h2 style={{ marginTop: "0px", fontWeight: "400" }}>{ThisProject.domain}</h2>
-                            <h2>Summary:</h2>{ThisProject.summary}
-                            <StackList techStack={ThisProject.techStack} />
-                        </div>
-                        <div style={{ marginRight: "20px" }}>
-                            <FeatureList ThisProject={ThisProject} />
-                            <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openDialog}>Add New feature</button>
-                            <dialog ref={dialogRef} className="popup" onClose={closeDialog}>
-                                <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleAddNew(feature) }}>
-                                    <h2>Add a New Feature</h2>
-
-                                    {/* Updated Button Class */}
-                                    <button
-                                        type="button"
-                                        className="popup-add-btn"
-                                        onClick={() => setNewTask([...newTask, ""])}
-                                    >
-                                        + Add more task
-                                    </button>
-
-                                    {/* Updated Wrapper Class for scrolling/spacing */}
-                                    <div className="popup-tasks-container">
-                                        <input
-                                            type="text"
-                                            value={feature}
-                                            className="popup-feature-input"
-                                            placeholder="Enter feature name"
-                                            onChange={(e) => setfeature(e.target.value)}
-                                        />
-
-                                        {
-                                            newTask.map((_, index) => (
-                                                <input
-                                                    key={index}
-                                                    type="text"
-                                                    value={newTask[index]}
-                                                    className="popup-input"
-                                                    placeholder={`Enter Task #${index + 1}`}
-                                                    onChange={(e) => {
-                                                        const updatedTask = [...newTask];
-                                                        updatedTask[index] = e.target.value;
-                                                        setNewTask(updatedTask);
-                                                    }}
-                                                />
-                                            ))
-                                        }
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "5px", marginRight: "10px" }}>
+                                        <label className="popup-label">Tech Stack</label>
+                                        <button type="button" onClick={newStack}>+</button>
                                     </div>
 
-                                    <div className="popup-actions">
-                                        <button className="popup-btn-primary" type="submit" onClick={() => handleAddNew(feature)}>
-                                            Add feature
-                                        </button>
-                                        <button className="popup-btn-secondary" type="button" onClick={closeDialog}>
-                                            Close
-                                        </button>
+                                    {editProject.techStack.map((stack, index) => {
+                                        return (
+                                            <input
+                                                className="popup-input"
+                                                key={index}
+                                                type="text"
+                                                value={stack}
+                                                placeholder="Enter Tech Stack"
+                                                onChange={handleTechStackChange(index)}
+                                            />
+                                        )
+                                    })}
+
+                                    <div className="popup-actions" style={{ marginTop: "20px" }}>
+                                        <button className="popup-btn-primary" type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save"}</button>
+                                        <button className="popup-btn-secondary" type="button" onClick={closeEditDialog}>Cancel</button>
                                     </div>
                                 </form>
                             </dialog>
                         </div>
-                    </div >
-                ) :
-                    <h2>
-                        Theres no detail of this project !
-                    </h2>
-            }
+                        <MyProgress completion={ThisProject.completion} />
+                    </div>
+                    <h2 style={{ marginTop: "0px", fontWeight: "400" }}>{ThisProject.domain}</h2>
+                    <h2>Summary:</h2>{ThisProject.summary}
+                    <StackList techStack={ThisProject.techStack} />
+                </div>
+                <div style={{ marginRight: "20px" }}>
+                    <FeatureList ThisProject={ThisProject} />
+                    <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openDialog}>Add New feature</button>
+                    <dialog ref={dialogRef} className="popup" onClose={closeDialog}>
+                        <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleAddNew(feature) }}>
+                            <h2>Add a New Feature</h2>
+
+                            {/* Updated Button Class */}
+                            <button
+                                type="button"
+                                className="popup-add-btn"
+                                onClick={() => setNewTask([...newTask, ""])}
+                            >
+                                + Add more task
+                            </button>
+
+                            {/* Updated Wrapper Class for scrolling/spacing */}
+                            <div className="popup-tasks-container">
+                                <input
+                                    type="text"
+                                    value={feature}
+                                    className="popup-feature-input"
+                                    placeholder="Enter feature name"
+                                    onChange={(e) => setfeature(e.target.value)}
+                                />
+
+                                {
+                                    newTask.map((_, index) => (
+                                        <input
+                                            key={index}
+                                            type="text"
+                                            value={newTask[index]}
+                                            className="popup-input"
+                                            placeholder={`Enter Task #${index + 1}`}
+                                            onChange={(e) => {
+                                                const updatedTask = [...newTask];
+                                                updatedTask[index] = e.target.value;
+                                                setNewTask(updatedTask);
+                                            }}
+                                        />
+                                    ))
+                                }
+                            </div>
+
+                            <div className="popup-actions">
+                                <button className="popup-btn-primary" type="submit" onClick={() => handleAddNew(feature)}>
+                                    Add feature
+                                </button>
+                                <button className="popup-btn-secondary" type="button" onClick={closeDialog}>
+                                    Close
+                                </button>
+                            </div>
+                        </form>
+                    </dialog>
+                </div>
+            </div >
         </>
     )
 } 

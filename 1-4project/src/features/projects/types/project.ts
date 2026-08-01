@@ -14,7 +14,7 @@ export interface projectType {
     id: string,
     name: string,
     summary: string,
-    techStack: string[],
+    techStack: {id: number, name: string, project_id: number}[],
     domain: string,
     completion: number,
     features: feature[]
