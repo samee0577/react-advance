@@ -50,47 +50,58 @@ export default function ProjectDetails() {
     const { mutate, isPending } = useMutation({
 
         mutationFn: async (editProjectData: { projectId: number, name: string, summary: string, domain: string, techStack: string[] }) => {
+            if (!navigator.onLine) {
+                throw new Error("NETWORK_OFFLINE")
+            }
+
             const res = await fetch("http://localhost:3001/api/projects", {
                 method: 'put',
                 headers: { "content-Type": "application/json" },
                 body: JSON.stringify(editProjectData)
-            }).then(res => {
-                if (!res.ok) {
-                    throw new Error(`API error: ${res.status}`);
-                }
-                return res.json();
             })
-            return res
+
+            if (!res.ok) {
+                throw new Error(`API error: ${res.status}`)
+            }
+
+            return res.json()
         },
         onMutate: () => {
-            const id = toast.loading("Updating project...");
-            return { toastId: id };
+            const id = toast.loading("Updating project...")
+            return { toastId: id }
         },
         onSuccess: (_data, _variables, context) => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] })
 
-            queryClient.invalidateQueries({ queryKey: ["projects"] });
-
-            toast.update(context.toastId, {
-                render: "Project updated successfully!",
-                type: "success",
-                isLoading: false,
-                autoClose: 1000,
-                closeOnClick: true,
-            });
+            if (context?.toastId) {
+                toast.update(context.toastId, {
+                    render: "Project updated successfully!",
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 1000,
+                    closeOnClick: true,
+                })
+            } else {
+                toast.success("Project updated successfully!")
+            }
 
             closeEditDialog()
         },
-        onError: (_error, _variables, context) => {
+        onError: (error, _variables, context) => {
+            const message = error instanceof Error && error.message === "NETWORK_OFFLINE"
+                ? "No network connection. Please check your internet connection and try again."
+                : "Failed to save project."
+
             if (context?.toastId) {
                 toast.update(context.toastId, {
-                    render: "Failed to save project.",
+                    render: message,
                     type: "error",
                     isLoading: false,
                     autoClose: 5000,
                     closeOnClick: true,
-                });
+                })
             } else {
-                toast.error("Failed to save project.");
+                toast.error(message)
             }
         }
     })
@@ -150,6 +161,7 @@ export default function ProjectDetails() {
     if (!projectData) { return <div>No project detail found!</div> }
 
     const ThisProject = projectData
+    console.log(ThisProject)
 
     function handleOpenEdit() {
 
@@ -182,17 +194,21 @@ export default function ProjectDetails() {
 
     function handleAddNew(featureName: string) {
         if (ThisProject === undefined) return
-        if (featureName.trim() === '') return
 
-        // const formattedTasks = newTask.map((task) => task.trim()).filter((task) => task !== '')
-        try {
-            setfeature("")
-            setNewTask([""])
-            toast.success("feature added successfully")
-            closeDialog()
-        } catch (error) {
-            toast.error("Error adding feature");
+        if (featureName.trim() === '') {
+            toast.error("Please enter a feature name")
+            return
         }
+
+        if (!navigator.onLine) {
+            toast.error("No network connection. Please check your internet connection and try again.")
+            return
+        }
+
+        setfeature("")
+        setNewTask([""])
+        toast.success("Feature added successfully")
+        closeDialog()
     }
 
     function handleEdit() {

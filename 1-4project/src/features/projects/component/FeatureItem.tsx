@@ -1,37 +1,36 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { ProjectsContext } from "../context/projectContext";
 import type { feature } from "../types/project";
 import useDialog from "../hooks/useDialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 
-export function FeatureItem({ feature, ThisProjectId }: { feature: feature; ThisProjectId: string; }) {
+export function FeatureItem({ feature, ThisProjectId }: { feature: feature; ThisProjectId: number; }) {
 
-
-    const context = use(ProjectsContext);
-    if (!context) throw new Error("useProject must be used within a ProjectProvider");
-    const { dispatch } = context;
-
-
-    function handleToggle(taskId: string) {
-        try {
-            dispatch({
-                type: "TOGGLE_TASK",
-                payload: { projectId: ThisProjectId, featureId: feature.id, taskId: taskId }
-            })
-        } catch (error) {
-            toast.error("Error toggling feature");
+    const client = useQueryClient();
+    const { mutate: toggleTask, isPending } = useMutation({
+        mutationFn: async (taskID: number) => {
+            await fetch(`http://localhost:3001/api/projects/toggleTask`, {
+                method: "PUT",
+                headers: { "content-Type": "application/json" },
+                body: JSON.stringify({ status: !feature.tasks.find(task => task.id === taskID)?.status, taskId: taskID ,featureId: feature.id, projectId: ThisProjectId})
+            }).then(res => res.json())
+        },  
+        onSuccess: () => {
+            client.invalidateQueries({ queryKey: ["projects"] });
+        },
+        onError: () => {
+            toast.error("Error toggling task status");
         }
+    })
+    function handleToggle(taskId: number) {
+        toggleTask(taskId)
     }
 
-    function handleDeleteClick(featureId: string) {
-        try {
-            dispatch({ type: "DELETE_FEATURE", payload: { projectId: ThisProjectId, featureId: featureId } });
-            dispatch({ type: "UPDATE_COMPLETION", payload: { projectId: ThisProjectId } });
-            toast.success("Feature deleted successfully");
-        } catch (error) {
-            toast.error("Error deleting feature");
-        }
+    function handleDeleteClick(featureId: number) {
+        //api delete feature
+        //api to update the completion as well after the delete
+        // toast.success("Feature deleted successfully");
     }
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
@@ -39,7 +38,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
 
 
     return (
-        <div style={{alignSelf:"start"}}>
+        <div style={{ alignSelf: "start" }}>
             <div style={{ position: "relative", height: "100%" }}>
                 <button
                     onClick={openDialog}
@@ -73,8 +72,10 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                                     className="task-item"
                                     data-status={task.status ? "true" : "false"}
                                     onClick={() => handleToggle(task.id)}
-                                >
-                                    {task.title}
+                                    disabled={isPending}>
+                                    {
+                                        isPending ? <div className="loader"></div> : task.title
+                                    }
                                 </button>
                             ))}
                         </div>

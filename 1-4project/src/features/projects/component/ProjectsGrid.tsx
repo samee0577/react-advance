@@ -35,7 +35,7 @@ export default function ProjectsList() {
             }
         }
     )
-    
+    console.log("data:",projectData)
     const hasNetworkError = isOffline ||
         (error instanceof Error && (
             error.message === "NETWORK_OFFLINE" ||

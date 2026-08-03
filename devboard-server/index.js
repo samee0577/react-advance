@@ -11,10 +11,6 @@ app.use(cors());
 app.use(express.json());
 
 const port = 3001;
-// const projects = [
-//     { id: 1, name: "Project 1", summary: "loren djsd have bu anfkjsaf need a  fkjf lasklwi never . ", domain: "example.com", techStack: ["React", "TypeScript"], completion: 0, features: [{ id: 1, title: "Feature lmno", tasks: ["Task 1", "Task 2"] }] },
-//     { id: 2, name: "uhjdfbdhf", summary: "nothing", domain: "example.com", techStack: ["React", "TypeScript"], completion: 0, features: [{ id: 1, title: "Feature 1", tasks: ["Task stfu", "Task lol"] }] },
-// ];
 
 const { PGHOST,
     PGDATABASE,
@@ -120,7 +116,7 @@ app.put("/api/projects", async (req, res) => {
 
     try {
         client = await pool.connect();
-        const { name, summary, domain, techStack ,projectId} = req.body;
+        const { name, summary, domain, techStack, projectId } = req.body;
         if (
             name === undefined || name === null ||
             summary === undefined || summary === null ||
@@ -142,7 +138,7 @@ app.put("/api/projects", async (req, res) => {
             `delete from tech_stack where project_id=$1;`,
             [projectId]
         );
-        
+
         await client.query(
             `INSERT INTO tech_stack (name, project_id) 
              select unnest($1::text[]),$2;`,
@@ -158,7 +154,59 @@ app.put("/api/projects", async (req, res) => {
         console.log(error.message)
         res.status(500).json({ error: error.message });
     } finally {
-        client.release()
+        if (client) {
+            client.release();
+        }
+    }
+});
+
+
+//toggle feature.task
+app.put("/api/projects/toggleTask", async (req, res) => {
+    let client
+
+    try {
+        client = await pool.connect();
+
+        const { taskId, status, featureId, projectId } = req.body;
+
+        const hasMissingField = [taskId, status, featureId, projectId].some(
+            (value) => value === undefined || value === null || value === ''
+        );
+
+        if (hasMissingField || typeof status !== 'boolean') {
+            res.status(400).json({
+                error: 'taskId, status, featureId, and projectId must be provided in the request body, and status must be a boolean.'
+            });
+            return;
+        }
+
+        await client.query("BEGIN")
+
+        await client.query(`UPDATE tasks SET status = $1 WHERE id = $2 returning *;`, [status, taskId]);
+        await client.query(`UPDATE features SET status = (SELECT bool_and(status) FROM tasks WHERE feature_id = $1) WHERE id = $1;`, [featureId]);
+        const result = await client.query(`SELECT 
+            COUNT(*) FILTER (WHERE tasks.status = true) AS completed,
+            COUNT(*) AS total
+            FROM tasks
+            JOIN features ON tasks.feature_id = features.id
+            WHERE features.project_id = $1;`, [projectId]);
+        
+        const percentage = result.rows[0].total > 0 ? (result.rows[0].completed / result.rows[0].total) * 100 : 0;
+
+        await client.query(`UPDATE projects SET completion = $1 WHERE id = $2;`, [percentage, projectId]);
+
+        await client.query("COMMIT")
+
+        res.json({ message: "task status toggled successfully" });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error("Error toggling task status:", error);
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (client) {
+            client.release();
+        }
     }
 });
 
