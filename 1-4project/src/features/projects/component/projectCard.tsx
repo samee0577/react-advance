@@ -32,7 +32,7 @@ export default function ProjectCard({ project }: { project: projectType }) {
                     <button type="button" className="popup-btn-primary" onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
+                        // dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
                         closeDialog();
                     }}>Delete</button>
                     <button type="button" className="popup-btn-secondary" onClick={(e) => {

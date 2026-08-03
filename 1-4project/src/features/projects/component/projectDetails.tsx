@@ -161,7 +161,6 @@ export default function ProjectDetails() {
     if (!projectData) { return <div>No project detail found!</div> }
 
     const ThisProject = projectData
-    console.log(ThisProject)
 
     function handleOpenEdit() {
 

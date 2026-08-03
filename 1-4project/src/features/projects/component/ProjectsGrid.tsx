@@ -31,11 +31,10 @@ export default function ProjectsList() {
                     throw new Error("NETWORK_OFFLINE")
                 }
                 const res = await fetch("http://localhost:3001/api/projects").then(res => res.json())  
-                return res.json() 
+                return res 
             }
         }
     )
-    console.log("data:",projectData)
     const hasNetworkError = isOffline ||
         (error instanceof Error && (
             error.message === "NETWORK_OFFLINE" ||

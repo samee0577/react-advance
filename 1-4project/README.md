@@ -257,13 +257,16 @@ jobs:
 - Check status: repo → **Actions** tab, or the ✅/❌ icon next to a commit/PR
 
 edit dailog: 
-	techstack fix, done
-	edit doesnt work (api), done 
-	empty stale insead of entered text done 
+	techstack fix, done✅
+	edit doesnt work (api), done✅ 
+	empty stale insead of entered text done✅ 
 feature: 
-	task not showing  done
-	cant toggle task done
+	task not showing  done✅
+	cant toggle task done✅
 	cant add new feaature(api) 
-  progress bar not connected done 
+  progress bar not connected done✅
+  delete feature 
 project:
 	cant delete project(api)
+performance feature list toggle:
+  optimistic updates
