@@ -263,10 +263,17 @@ edit dailog:
 feature: 
 	task not showing  done✅
 	cant toggle task done✅
-	cant add new feaature(api) 
+	cant add new feature(api)  
   progress bar not connected done✅
-  delete feature 
+  delete feature done✅
+  delete task done✅
 project:
-	cant delete project(api)
+	cant delete project(api) done✅
 performance feature list toggle:
   optimistic updates
+deployment?:
+  ??research
+smart ai?:
+  reserch??
+ui upadte:
+  figma + claude

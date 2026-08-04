@@ -1,40 +1,82 @@
 import { Link } from "react-router-dom";
 import type { projectType } from "../types/project";
 import { MyProgress } from "./ProgressBar";
-import { use } from "react";
-import { ProjectsContext } from "../context/projectContext";
+import { useState, useRef, useEffect } from "react";
 import useDialog from "../hooks/useDialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 export default function ProjectCard({ project }: { project: projectType }) {
 
-    const context = use(ProjectsContext);
+    const queryClient =useQueryClient();
+    const { mutate, isPending } = useMutation({
 
-    if (!context || !context.state) {
-        throw new Error("ProjectsList must be used within a properly initialized ProjectProvider");
-    }
-
-    const { dispatch } = context;
+        mutationFn: async (projectId: number) => {
+            await fetch(`http://localhost:3001/api/projects/delete/${projectId}`, {
+                method: "DELETE"
+            }).then(res => res.json());
+        },
+        onSuccess: (_data, _variables, context) => {
+            toast.success("Project deleted successfully!");
+            queryClient.invalidateQueries({ queryKey: ["projects"] })
+            closeDialog();
+        },
+        onError: (error: any) => {
+            console.error("Error deleting project:", error);
+            alert("Failed to delete the project. Please try again.");
+            toast.error("Failed to delete the project.");
+        }
+    });
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
+    // Toggle menu dropdown
+    const toggleMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsMenuOpen((prev) => !prev);
+    };
+
+    // Open confirmation dialog and close dropdown menu
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-
+        setIsMenuOpen(false);
         openDialog();
     };
+
+    // Close menu automatically if user clicks anywhere outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        if (isMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isMenuOpen]);
 
     return (
         <>
             <dialog ref={dialogRef} className="popup">
                 <p className="popupText">Are you sure you want to delete "{project.name}"?</p>
                 <div className="popup-actions">
-                    <button type="button" className="popup-btn-primary" onClick={(e) => {
+                    <button type="button" 
+                        className="popup-btn-primary"
+                        disabled={isPending} 
+                        onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        // dispatch({ type: "REMOVE_PROJECT", payload: { projectId: project.id } });
-                        closeDialog();
-                    }}>Delete</button>
+                        mutate(project.id);
+                    }}>{isPending?"Deleting...":"Confirm"}</button>
                     <button type="button" className="popup-btn-secondary" onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -52,23 +94,30 @@ export default function ProjectCard({ project }: { project: projectType }) {
                 boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
             }}>
 
-                {/* Clean, accessible delete button outside the link */}
-                <button
-                    type="button"
-                    onClick={handleDeleteClick}
-                    aria-label={`Delete ${project.name}`}
-                    className="deleteButton"
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.color = "red";
-                        e.currentTarget.style.backgroundColor = "#fff5f5";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.color = "#999";
-                        e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                >
-                    &times;
-                </button>
+                {/* Three-Dot Menu Container */}
+                <div className="menuContainer" ref={menuRef}>
+                    <button
+                        type="button"
+                        onClick={toggleMenu}
+                        aria-label={`Options for ${project.name}`}
+                        className="menuButton"
+                    >
+                        &#8942; {/* Vertical Three-Dot Symbol (⋮) */}
+                    </button>
+
+                    {/* Popover Dropdown */}
+                    {isMenuOpen && (
+                        <div className="menuDropdown">
+                            <button
+                                type="button"
+                                onClick={handleDeleteClick}
+                                className="menuItemDelete"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 <Link to={`/projectDetail/${project.id}`} style={{ textDecoration: "none", color: "black" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "4fr 1fr", gap: "10px", paddingRight: "20px" }}>

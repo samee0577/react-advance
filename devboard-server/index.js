@@ -31,6 +31,57 @@ const pool = new Pool({
     }
 });
 
+//delete project
+app.delete("/api/projects/delete/:projectId",async(req,res)=>{
+    let client;
+    try{
+        client = await pool.connect();
+        const { projectId } = req.params;
+        await client.query(`DELETE FROM projects WHERE id=$1;`,[projectId])
+        res.status(200).json({message:"Project deleted"})
+    }catch{
+        res.status(500).json({ error: error.message });
+    }finally{
+        if (client){
+            client.release()
+        }
+    }
+})
+
+//delete feature
+app.delete("/api/projects/:projectId/features/:featureId", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect();
+        const { projectId, featureId } = req.params;
+        await client.query(`DELETE FROM features WHERE id=$1 AND project_id=$2;`, [featureId, projectId]) 
+        res.status(200).json({ message: "Feature deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+})
+
+//delete just a task
+app.delete("/api/projects/features/:featureId/tasks/:taskId", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect();
+        const { projectId, featureId, taskId } = req.params;
+        await client.query(`DELETE FROM tasks WHERE id=$1 AND feature_id=$2;`, [taskId, featureId]);
+        res.status(200).json({ message: "Task deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+});
+
 app.get("/api/projects", async (req, res) => {
     let client;
 

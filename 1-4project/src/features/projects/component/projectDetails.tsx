@@ -97,7 +97,7 @@ export default function ProjectDetails() {
                     render: message,
                     type: "error",
                     isLoading: false,
-                    autoClose: 5000,
+                    autoClose: 1000,
                     closeOnClick: true,
                 })
             } else {

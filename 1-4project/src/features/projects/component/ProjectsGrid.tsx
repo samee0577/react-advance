@@ -30,8 +30,8 @@ export default function ProjectsList() {
                 if (!navigator.onLine) {
                     throw new Error("NETWORK_OFFLINE")
                 }
-                const res = await fetch("http://localhost:3001/api/projects").then(res => res.json())  
-                return res 
+                const res = await fetch("http://localhost:3001/api/projects").then(res => res.json())
+                return res
             }
         }
     )
@@ -41,6 +41,31 @@ export default function ProjectsList() {
             error.message.includes("Failed to fetch") ||
             error.message.includes("NetworkError")
         ))
+
+    const demoProject = async () => {
+        try {
+            const res = await fetch("http://localhost:3001/api/projects", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: "demo",
+                    completion: 0,
+                    domain: "testing",
+                    summary: "lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus, quibusdam.",
+                    techStack: ["react","postgres","claude"],
+                    features: [{ title: "hello world feature", tasks: ["testing demo task", "another demo task"] }]
+                })
+
+            }).then(res=>{window.location.reload();return res.json()});
+            const data = await res.json();
+            console.log(data);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error creating demo project:", error);
+        }
+    }
 
     if (hasNetworkError) {
         return (
@@ -71,9 +96,9 @@ export default function ProjectsList() {
                     Add New Project
                 </button>
             </Link>
-            {/* <button onClick={demoProject} style={{ padding: "10px", margin: "10px", border: "1px solid black", borderRadius: 10, cursor: "pointer" , backgroundColor:"red"}}>
-                    demo project [temp button]
-                </button> */}
+            <button onClick={demoProject} style={{ padding: "10px", margin: "10px", border: "2px solid red", borderRadius: 10, cursor: "pointer", backgroundColor: "white" }}>
+                [demo button]
+            </button>
 
             {isLoading ? <h1>loading projects</h1> :
 

@@ -32,7 +32,7 @@ body {
 .features {
   width: 100%;
   height: 100%;
-  padding: 10px;
+  padding: 15px;
   padding-left: 20px;
   border: none;
   border-radius: 0;
@@ -63,28 +63,95 @@ body {
 .tasks-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  padding-left: 20px;
+  gap: 12px;
+  padding: 0 20px;
   background-color: white;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    padding 0.3s ease,
+    transform 0.35s ease;
+  transform: translateY(5px) scaleY(0.95);
+  transform-origin: bottom;
+}
+
+.tasks-container.open {
+  max-height: 500px;
+  opacity: 1;
+  padding: 25px 20px;
+  transform: translateY(0) scaleY(1);
+}
+
+.task-item-wrapper {
+  position: relative;
 }
 
 .task-item {
   width: 100%;
-  padding: 8px 10px;
-  padding-left: 16px;
-  border: 1px solid black;
-  border-radius: 6px;
+  padding: 10px 15px;
+  padding-right: 44px;
+  border: 1px solid rgba(0, 0, 0, 0.85);
+  border-radius: 4px;
   background-color: rgba(128, 128, 128, 0.15);
-  text-align: left;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  
+  color: #000000;
   font-family: 'Chillax', sans-serif;
-  font-weight: 400;
   font-size: 15px;
-  color: black;
+  font-weight: 500;
+  text-align: left;
+  
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease, transform 0.02s ease-out, box-shadow 0.08s ease;
 }
 
+.task-delete-button {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #666;
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.task-delete-button:hover {
+  background-color: #fff5f5;
+  color: #e53e3e;
+}
+
+/* Hover States */
+.task-item:hover {
+  background-color: rgba(128, 128, 128, 0.25);
+  transform: translateY(-1px);
+}
+
+.task-item[data-status="false"]:hover {
+  background-color: rgba(128, 128, 128, 0.3);
+}
+
+/* Active / Press State */
+.task-item:active {
+  background-color: rgba(128, 128, 128, 0.3);
+  box-shadow: 1.5px 3px 1px rgba(0, 0, 0, 0.25);
+  transform: translateY(0) scale(0.992);
+}
+
+/* Keyboard Focus State */
+.task-item:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Status Variants */
 .task-item[data-status="true"] {
   background-color: rgba(46, 204, 113, 0.3);
 }
@@ -133,6 +200,69 @@ body {
 .deleteButton:hover {
   color: red;
   background-color: #a0a0a040;
+}
+
+/* Replace old .deleteButton rules with these: */
+
+.menuContainer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+  font-family: 'Chillax', sans-serif;
+  font-weight: 600;
+}
+
+.menuButton:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: black;
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  min-width: 110px;
+  z-index: 20;
+}
+
+.menuItemDelete {
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #e53e3e; /* Red accent for destructive action */
+  font-family: 'Chillax', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.menuItemDelete:hover {
+  background-color: #fff5f5;
 }
 
 .project-grid-container {

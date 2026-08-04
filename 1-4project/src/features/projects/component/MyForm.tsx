@@ -113,7 +113,7 @@ export default function MyForm() {
                     render: "Failed to save project.",
                     type: "error",
                     isLoading: false,
-                    autoClose: 5000,
+                    autoClose: 1000,
                     closeOnClick: true,
                 });
             } else {

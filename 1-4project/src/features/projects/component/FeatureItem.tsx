@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import type { feature } from "../types/project";
+import type { feature, task } from "../types/project";
 import useDialog from "../hooks/useDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -23,18 +23,83 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
             toast.error("Error toggling task status");
         }
     })
+
+    const { mutate: deleteFeature, isPending: isPendingDelete } = useMutation({
+        mutationFn: async (featureId: number) => {
+            await fetch(`http://localhost:3001/api/projects/${ThisProjectId}/features/${featureId}`, {
+                method: "DELETE",
+                headers: { "content-Type": "application/json" }
+            }).then(res => res.json())
+        },  
+        onSuccess: () => {
+            client.invalidateQueries({ queryKey: ["projects"] });
+            toast.success("Feature deleted successfully",
+                {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                }
+            );
+            closeDialog();
+        },
+        onError: () => {
+            closeDialog();
+            toast.error("Error deleting feature");
+        }
+    })
+
+    const { mutate: deleteTask, isPending: isPendingTaskDelete } = useMutation({
+        mutationFn: async (taskId: number) => {
+            await fetch(`http://localhost:3001/api/projects/features/${feature.id}/tasks/${taskId}`, {
+                method: "DELETE",
+                headers: { "content-Type": "application/json" }
+            }).then(res => res.json())
+        },
+        onSuccess: () => {
+            client.invalidateQueries({ queryKey: ["projects"] });
+            toast.success("Task deleted successfully",
+                {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                }
+            );
+            closeTaskDialog();
+            setTaskToDelete(null);
+        },
+        onError: () => {
+            closeTaskDialog();
+            setTaskToDelete(null);
+            toast.error("Error deleting task");
+        }
+    })
+
     function handleToggle(taskId: number) {
         toggleTask(taskId)
     }
 
     function handleDeleteClick(featureId: number) {
-        //api delete feature
-        //api to update the completion as well after the delete
-        // toast.success("Feature deleted successfully");
+        deleteFeature(featureId);
+    }
+
+    function handleTaskDeleteClick(taskId: number) {
+        deleteTask(taskId);
     }
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
+    const { dialogRef: taskDialogRef, openDialog: openTaskDialog, closeDialog: closeTaskDialog } = useDialog();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState<task | null>(null);
 
 
     return (
@@ -64,31 +129,51 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                     >
                         {feature.title}
                     </button>
-                    {isExpanded && (
-                        <div className="tasks-container">
-                            {feature.tasks.map((task) => (
+                    <div className={`tasks-container ${isExpanded ? "open" : ""}`}>
+                        {feature.tasks.map((task) => (
+                            <div key={task.id} className="task-item-wrapper">
                                 <button
-                                    key={task.id}
                                     className="task-item"
                                     data-status={task.status ? "true" : "false"}
                                     onClick={() => handleToggle(task.id)}
                                     disabled={isPending}>
-                                    {
-                                        isPending ? <div className="loader"></div> : task.title
-                                    }
+                                    {task.title}
                                 </button>
-                            ))}
-                        </div>
-                    )}
+                                <button
+                                    type="button"
+                                    className="task-delete-button"
+                                    aria-label={`Delete ${task.title}`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setTaskToDelete(task);
+                                        openTaskDialog();
+                                    }}
+                                >
+                                    🗑
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
             <dialog ref={dialogRef} className="popup">
                 <h2>Are you sure you want to delete {feature.title}?</h2>
                 <div className="popup-actions">
                     <button className="popup-btn-primary" onClick={() => handleDeleteClick(feature.id)}>
-                        Delete Task
+                        {isPendingDelete ? "Deleting...": "Delete feature"}
                     </button>
                     <button className="popup-btn-secondary" onClick={closeDialog}>
+                        Close
+                    </button>
+                </div>
+            </dialog>
+            <dialog ref={taskDialogRef} className="popup">
+                <h2>Are you sure you want to delete task "{taskToDelete?.title}"?</h2>
+                <div className="popup-actions">
+                    <button className="popup-btn-primary" onClick={() => taskToDelete && handleTaskDeleteClick(taskToDelete.id)}>
+                        {isPendingTaskDelete ? "Deleting...": "Delete task"}
+                    </button>
+                    <button className="popup-btn-secondary" onClick={closeTaskDialog}>
                         Close
                     </button>
                 </div>
