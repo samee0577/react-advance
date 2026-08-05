@@ -11,7 +11,7 @@ export const MyProgress = ({ completion }: { completion: number }) => {
                 strokeWidth={14}
                 text={`${completion.toFixed(0)}%`}
                 styles={buildStyles({
-                    pathColor: '#34ddff',
+                    pathColor: '#34c9ff',
                     trailColor: '#e5e5e5f9',
                     strokeLinecap: 'round',
                     rotation: 0,

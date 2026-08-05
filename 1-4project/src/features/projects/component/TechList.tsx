@@ -8,7 +8,7 @@ export default function StackList({ techStack }: { techStack: StackListProps[] }
     return (
         <>
             <h2>Tech Stack:</h2>
-            <div style={{display:"flex",flexDirection:"row",gap:"10px"}}>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:"10px" }}>
                 {techStack.map((stack) => <li className="stackList" key={stack.id} >{stack.name}</li>)}
             </div>
         </>

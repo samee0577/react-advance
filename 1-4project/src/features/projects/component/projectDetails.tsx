@@ -106,8 +106,68 @@ export default function ProjectDetails() {
         }
     })
 
+    const { mutate: addFeature, isPending: addFeaturePending } = useMutation({
+        mutationFn: async (featureData: featureInterface) => {
+            if (!navigator.onLine) {
+                throw new Error("NETWORK_OFFLINE")
+            }
 
-    interface editProjectType{
+            const res = await fetch(`http://localhost:3001/api/projects/${projectId}/features`, {
+                method: 'put',
+                headers: { "content-Type": "application/json" },
+                body: JSON.stringify(featureData)
+            })
+
+            if (!res.ok) {
+                throw new Error(`API error: ${res.status}`)
+            }
+            return res.json()
+        },
+        onMutate: () => {
+            const id = toast.loading("Adding feature...")
+            return { toastId: id }
+        },
+        onSuccess: (_data, _variables, context) => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] })
+            closeDialog()
+
+            if (context?.toastId) {
+                toast.update(context.toastId, {
+                    render: "Feature added successfully!",
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 1000,
+                    closeOnClick: true,
+                })
+            } else {
+                toast.success("Feature added successfully!")
+            }
+
+        },
+        onError: (error, _variables, context) => {
+            const message = error instanceof Error && error.message === "NETWORK_OFFLINE"
+                ? "No network connection. Please check your internet connection and try again."
+                : "Failed to add feature."
+            closeDialog()
+
+            if (context?.toastId) {
+                toast.update(context.toastId, {
+                    render: message,
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 1000,
+                    closeOnClick: true,
+                })
+            } else {
+                toast.error(message)
+            }
+
+        }
+    })
+
+
+
+    interface editProjectType {
         name: string,
         summary: string,
         domain: string,
@@ -115,8 +175,11 @@ export default function ProjectDetails() {
         completion: number,
         features: string[]
     }
-    const [feature, setfeature] = useState<string>("")
-    const [newTask, setNewTask] = useState<string[]>([""])
+    interface featureInterface {
+        title: string,
+        tasks: string[]
+    }
+    const [feature, setfeature] = useState<featureInterface>({ title: "", tasks: [""] })
     const [editProject, setEditProject] = useState<editProjectType>({
         name: "",
         summary: "",
@@ -135,7 +198,6 @@ export default function ProjectDetails() {
             error.message.includes("Failed to fetch") ||
             error.message.includes("NetworkError")
         ))
-
     if (hasNetworkError) {
         return (
             <div style={{
@@ -168,7 +230,7 @@ export default function ProjectDetails() {
             name: ThisProject.name,
             summary: ThisProject.summary,
             domain: ThisProject.domain,
-            techStack: ThisProject.techStack.map((s:{name:string})=>{return s.name}),
+            techStack: ThisProject.techStack.map((s: { name: string }) => { return s.name }),
             completion: ThisProject.completion,
             features: ThisProject.features,
         })
@@ -191,11 +253,16 @@ export default function ProjectDetails() {
         setEditProject({ ...editProject, techStack: newTechStack })
     }
 
-    function handleAddNew(featureName: string) {
+    function handleAddNew(feature: featureInterface) {
         if (ThisProject === undefined) return
 
-        if (featureName.trim() === '') {
+        if (feature.title.trim() === '') {
             toast.error("Please enter a feature name")
+            return
+        }
+
+        if (feature.tasks.length === 0) {
+            toast.error("Please add at least one task")
             return
         }
 
@@ -204,10 +271,10 @@ export default function ProjectDetails() {
             return
         }
 
-        setfeature("")
-        setNewTask([""])
-        toast.success("Feature added successfully")
-        closeDialog()
+        addFeature(feature)
+        setfeature({ title: "", tasks: [""] })
+        // toast.success("Feature added successfully")
+        // closeDialog()
     }
 
     function handleEdit() {
@@ -225,7 +292,7 @@ export default function ProjectDetails() {
             name: editProject?.name,
             summary: editProject?.summary,
             domain: editProject?.domain,
-            techStack:  nonEmptyTechStack
+            techStack: nonEmptyTechStack
         })
     }
 
@@ -233,6 +300,7 @@ export default function ProjectDetails() {
         setEditProject({ ...editProject, techStack: [...editProject.techStack, ""] })
     }
 
+    console.log(feature);
 
     return (
         <>
@@ -277,24 +345,24 @@ export default function ProjectDetails() {
                                         onChange={handleInputChange}
                                     />
 
-                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "5px", marginRight: "10px" }}>
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "5px", marginRight: "10px", marginBottom: "5px" }}>
                                         <label className="popup-label">Tech Stack</label>
                                         <button type="button" onClick={newStack}>+</button>
                                     </div>
-
-                                    {editProject.techStack.map((stack, index) => {
-                                        return (
-                                            <input
-                                                className="popup-input"
-                                                key={index}
-                                                type="text"
-                                                value={stack}
-                                                placeholder="Enter Tech Stack"
-                                                onChange={handleTechStackChange(index)}
-                                            />
-                                        )
-                                    })}
-
+                                    <div className="techStack-container">
+                                        {editProject.techStack.map((stack, index) => {
+                                            return (
+                                                <input
+                                                    className="popup-input"
+                                                    key={index}
+                                                    type="text"
+                                                    value={stack}
+                                                    placeholder="Enter Tech Stack"
+                                                    onChange={handleTechStackChange(index)}
+                                                />
+                                            )
+                                        })}
+                                    </div>
                                     <div className="popup-actions" style={{ marginTop: "20px" }}>
                                         <button className="popup-btn-primary" type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save"}</button>
                                         <button className="popup-btn-secondary" type="button" onClick={closeEditDialog}>Cancel</button>
@@ -313,39 +381,40 @@ export default function ProjectDetails() {
                     <button className="allButton" style={{ marginTop: "10px", width: "100%" }} onClick={openDialog}>Add New feature</button>
                     <dialog ref={dialogRef} className="popup" onClose={closeDialog}>
                         <form method="dialog" onSubmit={(e) => { e.preventDefault(); handleAddNew(feature) }}>
-                            <h2>Add a New Feature</h2>
-
-                            {/* Updated Button Class */}
-                            <button
-                                type="button"
-                                className="popup-add-btn"
-                                onClick={() => setNewTask([...newTask, ""])}
-                            >
-                                + Add more task
-                            </button>
-
+                            <h2>Add New Feature</h2>
                             {/* Updated Wrapper Class for scrolling/spacing */}
                             <div className="popup-tasks-container">
                                 <input
                                     type="text"
-                                    value={feature}
+                                    value={feature.title}
                                     className="popup-feature-input"
                                     placeholder="Enter feature name"
-                                    onChange={(e) => setfeature(e.target.value)}
+                                    onChange={(e) => setfeature({ ...feature, title: e.target.value })}
                                 />
 
+                                <div style={{ display: "flex", justifyContent: "space-between",alignItems:"center"}}>
+                                    <p style={{}}>Tasks:</p>
+                                    {/* Updated Button Class */}
+                                    <button
+                                        type="button"
+                                        className="popup-add-btn"
+                                        onClick={() => setfeature({ ...feature, tasks: [...feature.tasks, ""] })}
+                                    >
+                                        + Add more task
+                                    </button>
+                                </div>
                                 {
-                                    newTask.map((_, index) => (
+                                    feature.tasks.map((_, index) => (
                                         <input
                                             key={index}
                                             type="text"
-                                            value={newTask[index]}
+                                            value={feature.tasks[index]}
                                             className="popup-input"
                                             placeholder={`Enter Task #${index + 1}`}
                                             onChange={(e) => {
-                                                const updatedTask = [...newTask];
-                                                updatedTask[index] = e.target.value;
-                                                setNewTask(updatedTask);
+                                                const updatedTasks = [...feature.tasks];
+                                                updatedTasks[index] = e.target.value;
+                                                setfeature({ ...feature, tasks: updatedTasks });
                                             }}
                                         />
                                     ))
@@ -353,8 +422,8 @@ export default function ProjectDetails() {
                             </div>
 
                             <div className="popup-actions">
-                                <button className="popup-btn-primary" type="submit" onClick={() => handleAddNew(feature)}>
-                                    Add feature
+                                <button className="popup-btn-primary" type="submit">
+                                    {addFeaturePending ? "Adding..." : "Add feature"}
                                 </button>
                                 <button className="popup-btn-secondary" type="button" onClick={closeDialog}>
                                     Close

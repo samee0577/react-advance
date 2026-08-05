@@ -32,17 +32,17 @@ const pool = new Pool({
 });
 
 //delete project
-app.delete("/api/projects/delete/:projectId",async(req,res)=>{
+app.delete("/api/projects/delete/:projectId", async (req, res) => {
     let client;
-    try{
+    try {
         client = await pool.connect();
         const { projectId } = req.params;
-        await client.query(`DELETE FROM projects WHERE id=$1;`,[projectId])
-        res.status(200).json({message:"Project deleted"})
-    }catch{
+        await client.query(`DELETE FROM projects WHERE id=$1;`, [projectId])
+        res.status(200).json({ message: "Project deleted" })
+    } catch {
         res.status(500).json({ error: error.message });
-    }finally{
-        if (client){
+    } finally {
+        if (client) {
             client.release()
         }
     }
@@ -54,9 +54,85 @@ app.delete("/api/projects/:projectId/features/:featureId", async (req, res) => {
     try {
         client = await pool.connect();
         const { projectId, featureId } = req.params;
-        await client.query(`DELETE FROM features WHERE id=$1 AND project_id=$2;`, [featureId, projectId]) 
+
+        await client.query("BEGIN");
+        await client.query(`DELETE FROM tasks WHERE feature_id=$1;`, [featureId]);
+        await client.query(`DELETE FROM features WHERE id=$1 AND project_id=$2;`, [featureId, projectId]);
+        await client.query("COMMIT");
+
         res.status(200).json({ message: "Feature deleted successfully" });
     } catch (error) {
+        if (client) {
+            await client.query("ROLLBACK");
+        }
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+})
+
+//update feature
+app.put("/api/projects/:projectId/features/:featureId", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect();
+        const { projectId, featureId } = req.params;
+        const { title, tasks } = req.body;
+
+        if (!title || typeof title !== "string" || title.trim() === "") {
+            return res.status(400).json({ error: "Feature title is required." });
+        }
+
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+            return res.status(400).json({ error: "At least one task is required." });
+        }
+
+        const normalizedTasks = tasks
+            .map((task) => ({
+                title: task.title?.trim?.() ?? String(task).trim(),
+                status: typeof task.status === "boolean" ? task.status : false,
+            }))
+            .filter((task) => task.title !== "");
+
+        if (normalizedTasks.length === 0) {
+            return res.status(400).json({ error: "At least one task is required." });
+        }
+
+        await client.query("BEGIN");
+        await client.query(
+            `UPDATE features SET title=$1 WHERE id=$2 AND project_id=$3;`,
+            [title.trim(), featureId, projectId]
+        );
+
+        await client.query(`DELETE FROM tasks WHERE feature_id=$1;`, [featureId]);
+
+        for (const task of normalizedTasks) {
+            await client.query(
+                `INSERT INTO tasks (title, status, feature_id) VALUES ($1, $2, $3);`,
+                [task.title, task.status, featureId]
+            );
+        }
+
+        await client.query(`UPDATE features SET status = (SELECT bool_and(status) FROM tasks WHERE feature_id = $1) WHERE id = $1;`, [featureId]);
+
+        const result = await client.query(`SELECT 
+            COUNT(*) FILTER (WHERE tasks.status = true) AS completed,
+            COUNT(*) AS total
+            FROM tasks
+            JOIN features ON tasks.feature_id = features.id
+            WHERE features.project_id = $1;`, [projectId]);
+
+        const percentage = result.rows[0].total > 0 ? Math.round((result.rows[0].completed / result.rows[0].total) * 100) : 0;
+        await client.query(`UPDATE projects SET completion = $1 WHERE id = $2;`, [percentage, projectId]);
+
+        await client.query("COMMIT");
+        res.status(200).json({ message: "Feature updated successfully" });
+    } catch (error) {
+        if (client) {
+            await client.query("ROLLBACK");
+        }
         res.status(500).json({ error: error.message });
     } finally {
         if (client) {
@@ -161,6 +237,46 @@ app.get("/api/db-health", async (req, res) => {
     }
 });
 
+//add more features
+app.put("/api/projects/:projectId/features", async (req, res) => {
+    let client;
+    const { projectId } = req.params;
+    const feature  = req.body;
+    if (!feature) {
+        return res.status(400).json({ error: "Feature object is required." });
+    }
+
+    if (!feature.title) {
+        return res.status(400).json({ error: "Feature title is required." });
+    }
+
+    if (!Array.isArray(feature.tasks) || feature.tasks.length === 0) {
+        return res.status(400).json({ error: "Feature tasks must be a non-empty array." });
+    }
+    try {
+        client = await pool.connect();
+        await client.query("BEGIN");
+
+        const featureId = await client.query("insert into features (title, status, project_id) values ($1, $2, $3) returning id;", [feature.title, false, projectId]);
+
+        await client.query("insert into tasks (title, status, feature_id) select unnest($1::text[]),$2,$3;", [feature.tasks, false, featureId.rows[0].id]);
+        await client.query("COMMIT");
+
+        res.json({ message: "Feature added successfully" });
+    } catch (error) {
+        await client.query("rollback")
+        res.status(500).json({
+            ok: false,
+            message: "Failed to add feature",
+            error: error.message
+        });
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+})
+
 //edit project
 app.put("/api/projects", async (req, res) => {
     let client;
@@ -242,10 +358,10 @@ app.put("/api/projects/toggleTask", async (req, res) => {
             FROM tasks
             JOIN features ON tasks.feature_id = features.id
             WHERE features.project_id = $1;`, [projectId]);
-        
+
         const percentage = result.rows[0].total > 0 ? (result.rows[0].completed / result.rows[0].total) * 100 : 0;
 
-        await client.query(`UPDATE projects SET completion = $1 WHERE id = $2;`, [percentage, projectId]);
+        await client.query(`UPDATE projects SET completion = $1 WHERE id = $2;`, [Math.round(percentage), projectId]);
 
         await client.query("COMMIT")
 

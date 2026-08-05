@@ -16,7 +16,7 @@ export default function ProjectCard({ project }: { project: projectType }) {
                 method: "DELETE"
             }).then(res => res.json());
         },
-        onSuccess: (_data, _variables, context) => {
+        onSuccess: () => {
             toast.success("Project deleted successfully!");
             queryClient.invalidateQueries({ queryKey: ["projects"] })
             closeDialog();

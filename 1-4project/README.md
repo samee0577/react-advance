@@ -267,6 +267,10 @@ feature:
   progress bar not connected done✅
   delete feature done✅
   delete task done✅
+  dleting feature or task must also update the completion 
+  edit feature and task
+form:
+  empty stack should be filtered out
 project:
 	cant delete project(api) done✅
 performance feature list toggle:

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import type { feature, task } from "../types/project";
 import useDialog from "../hooks/useDialog";
@@ -46,10 +46,48 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                 }
             );
             closeDialog();
+            setIsMenuOpen(false);
         },
         onError: () => {
             closeDialog();
+            setIsMenuOpen(false);
             toast.error("Error deleting feature");
+        }
+    })
+
+    const { mutate: updateFeature, isPending: isPendingEdit } = useMutation({
+        mutationFn: async (updatedFeature: { title: string; tasks: { title: string; status: boolean }[] }) => {
+            const res = await fetch(`http://localhost:3001/api/projects/${ThisProjectId}/features/${feature.id}`, {
+                method: "PUT",
+                headers: { "content-Type": "application/json" },
+                body: JSON.stringify(updatedFeature)
+            });
+
+            if (!res.ok) {
+                throw new Error(`API error: ${res.status}`);
+            }
+
+            return res.json();
+        },
+        onSuccess: () => {
+            client.invalidateQueries({ queryKey: ["projects"] });
+            toast.success("Feature updated successfully", {
+                position: "bottom-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            closeEditDialog();
+            setIsMenuOpen(false);
+        },
+        onError: () => {
+            closeEditDialog();
+            setIsMenuOpen(false);
+            toast.error("Error updating feature");
         }
     })
 
@@ -96,31 +134,101 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
         deleteTask(taskId);
     }
 
+    function handleOpenEdit() {
+        setEditFeatureTitle(feature.title);
+        setEditTasks(feature.tasks.map((taskItem) => ({
+            id: taskItem.id,
+            title: taskItem.title,
+            status: taskItem.status,
+        })));
+        openEditDialog();
+        setIsMenuOpen(false);
+    }
+
+    function handleSaveEdit() {
+        const cleanedTitle = editFeatureTitle.trim();
+        const cleanedTasks = editTasks
+            .map((taskItem) => ({ ...taskItem, title: taskItem.title.trim() }))
+            .filter((taskItem) => taskItem.title !== "");
+
+        if (!cleanedTitle) {
+            toast.error("Please enter a feature name");
+            return;
+        }
+
+        if (cleanedTasks.length === 0) {
+            toast.error("Please add at least one task");
+            return;
+        }
+
+        updateFeature({
+            title: cleanedTitle,
+            tasks: cleanedTasks.map((taskItem) => ({
+                title: taskItem.title,
+                status: taskItem.status,
+            })),
+        });
+    }
+
     const { dialogRef, openDialog, closeDialog } = useDialog();
     const { dialogRef: taskDialogRef, openDialog: openTaskDialog, closeDialog: closeTaskDialog } = useDialog();
+    const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState<task | null>(null);
+    const [editFeatureTitle, setEditFeatureTitle] = useState(feature.title);
+    const [editTasks, setEditTasks] = useState<{ id: number; title: string; status: boolean }[]>([]);
+    const menuRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        if (isMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isMenuOpen]);
 
     return (
         <div style={{ alignSelf: "start" }}>
             <div style={{ position: "relative", height: "100%" }}>
-                <button
-                    onClick={openDialog}
-                    aria-label={`Delete ${feature.title}`}
-                    className="deleteButton"
-                    // Quick hover effect for production polish
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.color = "red";
-                        e.currentTarget.style.backgroundColor = "#fff5f5";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.color = "#999";
-                        e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                >
-                    &times;
-                </button>
+                <div className="menuContainer" ref={menuRef}>
+                    <button
+                        type="button"
+                        onClick={() => setIsMenuOpen((prev) => !prev)}
+                        aria-label={`Options for ${feature.title}`}
+                        className="menuButton"
+                    >
+                        &#8942;
+                    </button>
+
+                    {isMenuOpen && (
+                        <div className="menuDropdown">
+                            <button
+                                type="button"
+                                onClick={handleOpenEdit}
+                                className="menuItemEdit"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                onClick={openDialog}
+                                className="menuItemDelete"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 <div className="feature-wrapper">
                     <button
                         className="features"
@@ -156,11 +264,80 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                     </div>
                 </div>
             </div>
+
+            <dialog ref={editDialogRef} className="popup" onClose={closeEditDialog}>
+                <form method="dialog" onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveEdit();
+                }}>
+                    <h2>Edit feature</h2>
+
+                    <label className="popup-label">Feature title</label>
+                    <input
+                        type="text"
+                        value={editFeatureTitle}
+                        className="popup-input"
+                        placeholder="Enter feature title"
+                        onChange={(e) => setEditFeatureTitle(e.target.value)}
+                    />
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginTop: "12px" }}>
+                        <label className="popup-label">Tasks</label>
+                        <button
+                            type="button"
+                            className="popup-add-btn"
+                            onClick={() => setEditTasks((prev) => [...prev, {
+                                id: Date.now() + Math.floor(Math.random() * 1000),
+                                title: "",
+                                status: false,
+                            }])}
+                        >
+                            + Add more task
+                        </button>
+                    </div>
+
+                    <div className="popup-tasks-container">
+                        {editTasks.map((taskItem, index) => (
+                            <div key={taskItem.id ?? index} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "8px" ,position: "relative" }}>
+                                <input
+                                    type="text"
+                                    value={taskItem.title}
+                                    className="popup-input"
+                                    placeholder={`Enter Task #${index + 1}`}
+                                    onChange={(e) => {
+                                        const updatedTasks = [...editTasks];
+                                        updatedTasks[index] = { ...updatedTasks[index], title: e.target.value };
+                                        setEditTasks(updatedTasks);
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    className="task-delete-button"
+                                    onClick={() => setEditTasks((prev) => prev.filter((_, taskIndex) => taskIndex !== index))}
+                                    aria-label="Remove task"
+                                >
+                                    🗑
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="popup-actions" style={{ marginTop: "20px" }}>
+                        <button className="popup-btn-primary" type="submit" disabled={isPendingEdit}>
+                            {isPendingEdit ? "Saving..." : "Save changes"}
+                        </button>
+                        <button className="popup-btn-secondary" type="button" onClick={closeEditDialog}>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </dialog>
+
             <dialog ref={dialogRef} className="popup">
                 <h2>Are you sure you want to delete {feature.title}?</h2>
                 <div className="popup-actions">
                     <button className="popup-btn-primary" onClick={() => handleDeleteClick(feature.id)}>
-                        {isPendingDelete ? "Deleting...": "Delete feature"}
+                        {isPendingDelete ? "Deleting..." : "Delete feature"}
                     </button>
                     <button className="popup-btn-secondary" onClick={closeDialog}>
                         Close
@@ -171,7 +348,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                 <h2>Are you sure you want to delete task "{taskToDelete?.title}"?</h2>
                 <div className="popup-actions">
                     <button className="popup-btn-primary" onClick={() => taskToDelete && handleTaskDeleteClick(taskToDelete.id)}>
-                        {isPendingTaskDelete ? "Deleting...": "Delete task"}
+                        {isPendingTaskDelete ? "Deleting..." : "Delete task"}
                     </button>
                     <button className="popup-btn-secondary" onClick={closeTaskDialog}>
                         Close

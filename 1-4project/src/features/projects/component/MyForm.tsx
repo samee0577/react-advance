@@ -12,7 +12,7 @@ const inputStyle = {
 
 export type NewProjectDraft = {
     name: string;
-    completion: 0;
+    completion?: number;
     domain: string;
     summary: string;
     techStack: string[];
@@ -37,7 +37,7 @@ export function validateProject(draft: NewProjectDraft): boolean {
     // Check if tech stack has valid values
     const cleanTech = draft.techStack.filter(t => t.trim() !== "");
     if (cleanTech.length === 0) {
-        toast.error("Add at least one valid tech stack item");
+        toast.error("tech stack items cannot be empty");
         return false;
     }
 
@@ -134,9 +134,16 @@ export default function MyForm() {
     function handleSubmit() {
 
         if (!validateProject(newProject)) return;
-
-        console.log("project submitted: ",newProject);
-        mutate(newProject);
+        const cleanedProject = {
+            ...newProject,
+            techStack: newProject.techStack.filter(t => t.trim() !== ""),
+            features: newProject.features.map(feature => ({
+                ...feature,
+                tasks: feature.tasks.filter(t => t.trim() !== "")
+            }))
+        };
+        console.log("project submitted: ",cleanedProject);
+        mutate(cleanedProject);
     }
 
     function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {

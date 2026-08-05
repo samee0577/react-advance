@@ -44,7 +44,7 @@ export default function ProjectsList() {
 
     const demoProject = async () => {
         try {
-            const res = await fetch("http://localhost:3001/api/projects", {
+            await fetch("http://localhost:3001/api/projects", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -54,13 +54,10 @@ export default function ProjectsList() {
                     completion: 0,
                     domain: "testing",
                     summary: "lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus, quibusdam.",
-                    techStack: ["react","postgres","claude"],
+                    techStack: ["react", "postgres", "claude"],
                     features: [{ title: "hello world feature", tasks: ["testing demo task", "another demo task"] }]
                 })
-
-            }).then(res=>{window.location.reload();return res.json()});
-            const data = await res.json();
-            console.log(data);
+            });
             window.location.reload();
         } catch (error) {
             console.error("Error creating demo project:", error);
