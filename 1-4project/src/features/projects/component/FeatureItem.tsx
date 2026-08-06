@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import type { feature, task } from "../types/project";
+import type { feature } from "../types/project";
 import useDialog from "../hooks/useDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -91,45 +91,12 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
         }
     })
 
-    const { mutate: deleteTask, isPending: isPendingTaskDelete } = useMutation({
-        mutationFn: async (taskId: number) => {
-            await fetch(`http://localhost:3001/api/projects/features/${feature.id}/tasks/${taskId}`, {
-                method: "DELETE",
-                headers: { "content-Type": "application/json" }
-            }).then(res => res.json())
-        },
-        onSuccess: () => {
-            client.invalidateQueries({ queryKey: ["projects"] });
-            toast.success("Task deleted successfully",
-                {
-                    position: "bottom-right",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                }
-            );
-            setTaskToDelete(null);
-        },
-        onError: () => {
-            setTaskToDelete(null);
-            toast.error("Error deleting task");
-        }
-    })
-
     function handleToggle(taskId: number) {
         toggleTask(taskId)
     }
 
     function handleDeleteClick(featureId: number) {
         deleteFeature(featureId);
-    }
-
-    function handleTaskDeleteClick(taskId: number) {
-        deleteTask(taskId);
     }
 
     function handleOpenEdit() {
@@ -173,7 +140,6 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
     const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [taskToDelete, setTaskToDelete] = useState<task | null>(null);
     const [editFeatureTitle, setEditFeatureTitle] = useState(feature.title);
     const [editTasks, setEditTasks] = useState<{ id: number; title: string; status: boolean }[]>([]);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -245,18 +211,6 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                                     disabled={isPending}>
                                     {task.title}
                                 </button>
-                                {/* <button
-                                    type="button"
-                                    className="task-delete-button"
-                                    aria-label={`Delete ${task.title}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setTaskToDelete(task);
-                                        openTaskDialog();
-                                    }}
-                                >
-                                    🗑
-                                </button> */}
                             </div>
                         ))}
                     </div>
