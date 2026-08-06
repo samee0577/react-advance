@@ -275,7 +275,7 @@ project:
 	cant delete project(api) done✅
 performance feature list toggle:
   optimistic updates
-deployment?:
+deployment:
   vercel + railway
   dockerzise
   aws deploy
@@ -283,3 +283,7 @@ smart ai?:
   reserch??
 ui upadte:
   figma + claude
+
+to learn:
+  trigger sql(optional)
+  useRef understanad

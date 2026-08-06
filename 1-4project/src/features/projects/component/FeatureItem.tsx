@@ -112,11 +112,9 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                     theme: "light",
                 }
             );
-            closeTaskDialog();
             setTaskToDelete(null);
         },
         onError: () => {
-            closeTaskDialog();
             setTaskToDelete(null);
             toast.error("Error deleting task");
         }
@@ -171,7 +169,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
     }
 
     const { dialogRef, openDialog, closeDialog } = useDialog();
-    const { dialogRef: taskDialogRef, openDialog: openTaskDialog, closeDialog: closeTaskDialog } = useDialog();
+    // const { dialogRef: taskDialogRef, openDialog: openTaskDialog, closeDialog: closeTaskDialog } = useDialog();
     const { dialogRef: editDialogRef, openDialog: openEditDialog, closeDialog: closeEditDialog } = useDialog();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -340,17 +338,6 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                         {isPendingDelete ? "Deleting..." : "Delete feature"}
                     </button>
                     <button className="popup-btn-secondary" onClick={closeDialog}>
-                        Close
-                    </button>
-                </div>
-            </dialog>
-            <dialog ref={taskDialogRef} className="popup">
-                <h2>Are you sure you want to delete task "{taskToDelete?.title}"?</h2>
-                <div className="popup-actions">
-                    <button className="popup-btn-primary" onClick={() => taskToDelete && handleTaskDeleteClick(taskToDelete.id)}>
-                        {isPendingTaskDelete ? "Deleting..." : "Delete task"}
-                    </button>
-                    <button className="popup-btn-secondary" onClick={closeTaskDialog}>
                         Close
                     </button>
                 </div>
