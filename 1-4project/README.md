@@ -274,7 +274,7 @@ form:
 project:
 	cant delete project(api) done✅
 performance feature list toggle:
-  optimistic updates
+  optimistic updates done✅
 deployment:
   vercel + railway
   dockerzise
@@ -287,3 +287,5 @@ ui upadte:
 to learn:
   trigger sql(optional)
   useRef understanad
+  tanstack 
+  optimistic updates

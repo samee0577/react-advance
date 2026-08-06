@@ -39,7 +39,6 @@ export default function ProjectDetails() {
                 if (!res.ok) {
                     throw new Error(`Request failed with status ${res.status}`)
                 }
-
                 return res.json()
             }
         }
@@ -299,8 +298,6 @@ export default function ProjectDetails() {
     function newStack() {
         setEditProject({ ...editProject, techStack: [...editProject.techStack, ""] })
     }
-
-    console.log(feature);
 
     return (
         <>

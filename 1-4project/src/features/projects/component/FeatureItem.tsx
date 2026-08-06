@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import type { feature } from "../types/project";
+import type { feature, task } from "../types/project";
 import useDialog from "../hooks/useDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -13,15 +13,51 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
             await fetch(`http://localhost:3001/api/projects/toggleTask`, {
                 method: "PUT",
                 headers: { "content-Type": "application/json" },
-                body: JSON.stringify({ status: !feature.tasks.find(task => task.id === taskID)?.status, taskId: taskID ,featureId: feature.id, projectId: ThisProjectId})
+                body: JSON.stringify({ status: !feature.tasks.find(task => task.id === taskID)?.status, taskId: taskID, featureId: feature.id, projectId: ThisProjectId })
             }).then(res => res.json())
-        },  
-        onSuccess: () => {
-            client.invalidateQueries({ queryKey: ["projects"] });
         },
-        onError: () => {
+        onMutate: async (taskID: number) => {
+            await client.cancelQueries({ queryKey: ["projects", String(ThisProjectId)] });
+            const previousProject = client.getQueryData(["projects", String(ThisProjectId)]);
+            client.setQueryData(["projects", String(ThisProjectId)], (old: any) => {
+                if (!old) return old;
+
+                const updatedFeatures = old.features.map((f: feature) => {
+                    if (f.id !== feature.id) return f;
+
+                    const updatedTasks = f.tasks.map((t: task) =>
+                        t.id === taskID ? { ...t, status: !t.status } : t
+                    );
+
+                    return {
+                        ...f,
+                        tasks: updatedTasks,
+                        status: updatedTasks.every((t: task) => t.status)
+                    };
+                });
+
+                const allTasks = updatedFeatures.flatMap((f: feature) => f.tasks);
+                const total = allTasks.length;
+                const completed = allTasks.filter((t: task) => t.status).length;
+                const completion = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+                return {
+                    ...old,
+                    features: updatedFeatures,
+                    completion: completion,
+                };
+            })
+            return { previousProject };
+        },
+        onError: (_err, _taskId, context) => {
+            if (context?.previousProject) {
+                client.setQueryData(["projects", String(ThisProjectId)], context.previousProject);
+            };
             toast.error("Error toggling task status");
-        }
+        },
+        onSettled() {
+            client.invalidateQueries({ queryKey: ["projects", String(ThisProjectId)] })
+        },
     })
 
     const { mutate: deleteFeature, isPending: isPendingDelete } = useMutation({
@@ -30,7 +66,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                 method: "DELETE",
                 headers: { "content-Type": "application/json" }
             }).then(res => res.json())
-        },  
+        },
         onSuccess: () => {
             client.invalidateQueries({ queryKey: ["projects"] });
             toast.success("Feature deleted successfully",
@@ -250,7 +286,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
 
                     <div className="popup-tasks-container">
                         {editTasks.map((taskItem, index) => (
-                            <div key={taskItem.id ?? index} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "8px" ,position: "relative" }}>
+                            <div key={taskItem.id ?? index} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "8px", position: "relative" }}>
                                 <input
                                     type="text"
                                     value={taskItem.title}
