@@ -352,16 +352,16 @@ app.put("/api/projects/toggleTask", async (req, res) => {
 
         await client.query(`UPDATE tasks SET status = $1 WHERE id = $2 returning *;`, [status, taskId]);
         await client.query(`UPDATE features SET status = (SELECT bool_and(status) FROM tasks WHERE feature_id = $1) WHERE id = $1;`, [featureId]);
-        const result = await client.query(`SELECT 
-            COUNT(*) FILTER (WHERE tasks.status = true) AS completed,
-            COUNT(*) AS total
-            FROM tasks
-            JOIN features ON tasks.feature_id = features.id
-            WHERE features.project_id = $1;`, [projectId]);
+        // const result = await client.query(`SELECT 
+        //     COUNT(*) FILTER (WHERE tasks.status = true) AS completed,
+        //     COUNT(*) AS total
+        //     FROM tasks
+        //     JOIN features ON tasks.feature_id = features.id
+        //     WHERE features.project_id = $1;`, [projectId]);
 
-        const percentage = result.rows[0].total > 0 ? (result.rows[0].completed / result.rows[0].total) * 100 : 0;
+        // const percentage = result.rows[0].total > 0 ? (result.rows[0].completed / result.rows[0].total) * 100 : 0;
 
-        await client.query(`UPDATE projects SET completion = $1 WHERE id = $2;`, [Math.round(percentage), projectId]);
+        // await client.query(`UPDATE projects SET completion = $1 WHERE id = $2;`, [Math.round(percentage), projectId]);
 
         await client.query("COMMIT")
 
