@@ -247,7 +247,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                                     disabled={isPending}>
                                     {task.title}
                                 </button>
-                                <button
+                                {/* <button
                                     type="button"
                                     className="task-delete-button"
                                     aria-label={`Delete ${task.title}`}
@@ -258,7 +258,7 @@ export function FeatureItem({ feature, ThisProjectId }: { feature: feature; This
                                     }}
                                 >
                                     🗑
-                                </button>
+                                </button> */}
                             </div>
                         ))}
                     </div>

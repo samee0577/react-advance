@@ -26,7 +26,12 @@ body {
   border: 1px solid black;
   border-radius: 8px;
   margin-bottom: 15px;
-  overflow: hidden;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+  transition: border 0.1s ease-in-out, transform 0.2s ease-in-out;
+}
+.feature-wrapper:hover {
+  border: 3px solid black;
+  transform: translateY(-2px);
 }
 
 .features {
@@ -34,6 +39,7 @@ body {
   height: 100%;
   padding: 15px;
   padding-left: 20px;
+  padding-right: 45px;
   border: none;
   border-radius: 0;
   text-decoration: none;
@@ -79,7 +85,8 @@ body {
 }
 
 .tasks-container.open {
-  max-height: 500px;
+  max-height: 250px;
+  overflow: auto;
   opacity: 1;
   padding: 25px 20px;
   transform: translateY(0) scaleY(1);
@@ -104,7 +111,7 @@ body {
   text-align: left;
   
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.02s ease-out, box-shadow 0.08s ease;
+  transition: border 0.1s ease-in-out, transform 0.02s ease-out;
 }
 
 .task-delete-button {
@@ -115,7 +122,7 @@ body {
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #666;
+  color: #ff1919;
   font-size: 20px;
   padding: 2px 8px;
   border-radius: 2px;
@@ -123,7 +130,7 @@ body {
 }
 
 .task-item-wrapper:hover .task-item {
-  background-color: rgba(128, 128, 128, 0.3);
+  border: 2px solid rgba(0, 0, 0, 0.85);
 }
 
 .task-delete-button:hover {
@@ -240,7 +247,7 @@ body {
 .menuButton {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   color: #666;
   width: 30px;
@@ -251,7 +258,7 @@ body {
   justify-content: center;
   transition: background-color 0.2s, color 0.2s;
   font-family: 'Chillax', sans-serif;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .menuButton:hover {

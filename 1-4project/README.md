@@ -263,20 +263,22 @@ edit dailog:
 feature: 
 	task not showing  done✅
 	cant toggle task done✅
-	cant add new feature(api)  
+	cant add new feature(api)  done✅
   progress bar not connected done✅
   delete feature done✅
   delete task done✅
-  dleting feature or task must also update the completion 
-  edit feature and task
+  dleting feature or task must also update the completion done✅  
+  edit feature and task done✅
 form:
-  empty stack should be filtered out
+  empty stack should be filtered out done✅ 
 project:
 	cant delete project(api) done✅
 performance feature list toggle:
   optimistic updates
 deployment?:
-  ??research
+  vercel + railway
+  dockerzise
+  aws deploy
 smart ai?:
   reserch??
 ui upadte:
